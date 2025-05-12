@@ -1,0 +1,952 @@
+﻿@page "{tripId:int}"
+@model TravelGpt.Pages.Expenses.ManageModel
+@{
+    ViewData["Title"] = "Gestione Spese";
+}
+
+<style>
+    /* Stili generali per la pagina Gestione Spese */
+    :root {
+        --primary-color: #0e76bc;
+        --primary-light: #e6f3ff;
+        --secondary-color: #6c757d;
+        --success-color: #28a745;
+        --danger-color: #dc3545;
+        --warning-color: #ffc107;
+        --info-color: #17a2b8;
+        --light-color: #f8f9fa;
+        --dark-color: #343a40;
+        --white-color: #ffffff;
+        --border-radius: 0.625rem;
+        --box-shadow: 0 .5rem 1rem rgba(0,0,0,.08);
+        --transition: all 0.3s ease;
+    }
+
+    /* Stile corpo della pagina */
+    .expense-container {
+        max-width: 1240px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+    }
+
+    /* Stile breadcrumb */
+    .expense-breadcrumb {
+        background-color: transparent;
+        padding: 0;
+        margin-bottom: 1.5rem;
+    }
+
+    .expense-breadcrumb .breadcrumb-item a {
+        color: var(--primary-color);
+        text-decoration: none;
+        font-weight: 500;
+        transition: var(--transition);
+    }
+
+    .expense-breadcrumb .breadcrumb-item a:hover {
+        color: var(--primary-color);
+        text-decoration: underline;
+    }
+
+    .expense-breadcrumb .breadcrumb-item.active {
+        color: var(--secondary-color);
+    }
+
+    .expense-breadcrumb .breadcrumb-item+.breadcrumb-item::before {
+        content: "›";
+        font-size: 1.2rem;
+        line-height: 1;
+        color: var(--secondary-color);
+    }
+
+    /* Stile titolo pagina */
+    .page-title {
+        color: var(--dark-color);
+        font-weight: 700;
+        font-size: 1.75rem;
+        margin-bottom: 2rem;
+        position: relative;
+        padding-bottom: 0.75rem;
+    }
+
+    .page-title:after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 80px;
+        height: 4px;
+        background: linear-gradient(to right, var(--primary-color), #3498db);
+        border-radius: 2px;
+    }
+
+    /* Stile card */
+    .expense-card {
+        border: none;
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+        transition: var(--transition);
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+    }
+
+    .expense-card:hover {
+        box-shadow: 0 .75rem 1.5rem rgba(0,0,0,.12);
+        transform: translateY(-3px);
+    }
+
+    .expense-card-header {
+        background: var(--white-color);
+        border-bottom: 1px solid rgba(0,0,0,.05);
+        padding: 1.25rem 1.5rem;
+    }
+
+    .expense-card-title {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--dark-color);
+        display: flex;
+        align-items: center;
+    }
+
+    .expense-card-title i {
+        color: var(--primary-color);
+        margin-right: 0.75rem;
+        font-size: 1.2rem;
+    }
+
+    .expense-card-body {
+        padding: 1.5rem;
+    }
+
+    /* Stile tabella */
+    .expense-table {
+        margin-bottom: 0;
+    }
+
+    .expense-table thead th {
+        background-color: rgba(248, 249, 250, 0.7);
+        color: var(--secondary-color);
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.5px;
+        border: none;
+        padding: 1rem;
+    }
+
+    .expense-table tbody td {
+        vertical-align: middle;
+        padding: 0.75rem 1rem;
+        border-top: 1px solid rgba(0,0,0,.05);
+    }
+
+    .expense-table tbody tr {
+        transition: var(--transition);
+    }
+
+    .expense-table tbody tr:hover {
+        background-color: var(--primary-light);
+    }
+
+    /* Stile badge categorie */
+    .badge-alloggio {
+        background-color: #e1f5fe;
+        color: #0288d1;
+    }
+
+    .badge-cibo {
+        background-color: #f1f8e9;
+        color: #689f38;
+    }
+
+    .badge-trasporti {
+        background-color: #fff3e0;
+        color: #f57c00;
+    }
+
+    .badge-attività {
+        background-color: #f3e5f5;
+        color: #8e24aa;
+    }
+
+    .badge-extra {
+        background-color: #e8eaf6;
+        color: #3949ab;
+    }
+
+    .expense-badge {
+        font-weight: 500;
+        font-size: 0.75rem;
+        padding: 0.4rem 0.75rem;
+        border-radius: 50rem;
+    }
+
+    /* Stili per i pulsanti */
+    .btn-add-expense {
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 50rem;
+        padding: 0.5rem 1rem;
+        font-size: 0.85rem;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        transition: var(--transition);
+    }
+
+    .btn-add-expense:hover {
+        background-color: #0a5a91;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(10, 90, 145, 0.2);
+    }
+
+    .btn-add-expense i {
+        margin-right: 0.4rem;
+    }
+
+    .btn-action {
+        width: 32px;
+        height: 32px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background-color: transparent;
+        transition: var(--transition);
+    }
+
+    .btn-edit {
+        color: var(--primary-color);
+        border: 1px solid var(--primary-color);
+    }
+
+    .btn-edit:hover {
+        background-color: var(--primary-color);
+        color: white;
+    }
+
+    .btn-delete {
+        color: var(--danger-color);
+        border: 1px solid var(--danger-color);
+        margin-left: 0.5rem;
+    }
+
+    .btn-delete:hover {
+        background-color: var(--danger-color);
+        color: white;
+    }
+
+    /* Stile riepilogo */
+    .summary-amount {
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        line-height: 1.1;
+    }
+
+    .category-label {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.25rem;
+        font-size: 0.85rem;
+    }
+
+    .category-name {
+        color: var(--dark-color);
+    }
+
+    .category-amount {
+        font-weight: 600;
+    }
+
+    .progress {
+        height: 6px;
+        margin-bottom: 1rem;
+        border-radius: 3px;
+        overflow: hidden;
+    }
+
+    .progress-alloggio {
+        background-color: #0288d1;
+    }
+
+    .progress-cibo {
+        background-color: #689f38;
+    }
+
+    .progress-trasporti {
+        background-color: #f57c00;
+    }
+
+    .progress-attività {
+        background-color: #8e24aa;
+    }
+
+    .progress-extra {
+        background-color: #3949ab;
+    }
+
+    /* Stile per summary box */
+    .summary-box {
+        background-color: var(--light-color);
+        border-radius: var(--border-radius);
+        padding: 1rem;
+    }
+
+    .summary-box .row {
+        font-size: 0.9rem;
+    }
+
+    /* Stile per filtri */
+    .filter-form label {
+        color: var(--secondary-color);
+        font-size: 0.85rem;
+        font-weight: 500;
+        margin-bottom: 0.3rem;
+    }
+
+    .filter-form .form-control,
+    .filter-form .form-select {
+        font-size: 0.9rem;
+        border-radius: 0.5rem;
+        padding: 0.5rem 0.75rem;
+        border-color: #e0e0e0;
+    }
+
+    .filter-form .form-control:focus,
+    .filter-form .form-select:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.1);
+    }
+
+    .filter-form .form-check-input:checked {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+
+    .btn-filter {
+        font-size: 0.85rem;
+        border-radius: 0.5rem;
+        padding: 0.45rem 1rem;
+    }
+
+    /* Stile per modali */
+    .modal-content {
+        border: none;
+        border-radius: var(--border-radius);
+    }
+
+    .modal-header {
+        background-color: var(--white-color);
+        border-bottom: 1px solid rgba(0,0,0,.05);
+        padding: 1.25rem 1.5rem;
+    }
+
+    .modal-title {
+        font-weight: 600;
+        color: var(--dark-color);
+    }
+
+    .modal-body {
+        padding: 1.5rem;
+    }
+
+    .modal-footer {
+        padding: 1.25rem 1.5rem;
+        border-top: 1px solid rgba(0,0,0,.05);
+    }
+
+    /* Stile notifica spese vuote */
+    .empty-expense-notice {
+        padding: 2rem 1rem;
+        text-align: center;
+    }
+
+    .empty-expense-notice p {
+        color: var(--secondary-color);
+        margin-bottom: 1rem;
+    }
+
+    /* Adattamenti per dispositivi mobili */
+    @@media (max-width: 767.98px) {
+        .summary-amount {
+            font-size: 1.8rem;
+        }
+
+        .expense-table thead th {
+            padding: 0.75rem 0.5rem;
+            font-size: 0.7rem;
+        }
+
+        .expense-table tbody td {
+            padding: 0.6rem 0.5rem;
+            font-size: 0.85rem;
+        }
+
+        .expense-badge {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.7rem;
+        }
+    }
+    
+    /* Stile per il grafico */
+    .chart-container {
+        height: 300px;
+        margin: 1rem 0 2rem 0;
+        position: relative;
+    }
+    
+    .chart-tabs {
+        display: flex;
+        border-bottom: 1px solid rgba(0,0,0,.1);
+        margin-bottom: 1rem;
+    }
+    
+    .chart-tab {
+        padding: 0.5rem 1rem;
+        cursor: pointer;
+        font-size: 0.85rem;
+        color: var(--secondary-color);
+        transition: var(--transition);
+        border-bottom: 2px solid transparent;
+    }
+    
+    .chart-tab.active {
+        color: var(--primary-color);
+        border-bottom: 2px solid var(--primary-color);
+        font-weight: 600;
+    }
+    
+    .chart-tab:hover:not(.active) {
+        color: var(--primary-color);
+        background-color: rgba(14, 118, 188, 0.05);
+    }
+</style>
+
+<div class="expense-container">
+    <div class="row mb-4">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb expense-breadcrumb">
+                    <li class="breadcrumb-item"><a asp-page="/Itinerary/List">I miei itinerari</a></li>
+                    <li class="breadcrumb-item"><a asp-page="/Itinerary/Details" asp-route-id="@Model.TripId">@Model.TripTitle</a></li>
+                    <li class="breadcrumb-item active">Gestione Spese</li>
+                </ol>
+            </nav>
+            <h1 class="page-title">Gestione Spese - @Model.TripTitle</h1>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Tabella spese -->
+            <div class="expense-card">
+                <div class="expense-card-header d-flex justify-content-between align-items-center">
+                    <h5 class="expense-card-title"><i class="fas fa-list"></i> Elenco Spese</h5>
+                    <button class="btn-add-expense" data-bs-toggle="modal" data-bs-target="#addExpenseModal">
+                        <i class="fas fa-plus"></i>Aggiungi Spesa
+                    </button>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table expense-table">
+                            <thead>
+                                <tr>
+                                    <th>Descrizione</th>
+                                    <th>Categoria</th>
+                                    <th>Data</th>
+                                    <th>Importo</th>
+                                    <th>Condivisa</th>
+                                    <th>Azioni</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.Expenses.Any())
+                                {
+                                    @foreach (var expense in Model.Expenses.OrderByDescending(e => e.Date))
+                                    {
+                                                <tr>
+                                                    <td>@expense.Description</td>
+                                                    <td>
+                                                        <span class="expense-badge badge-@expense.Category.ToLower()">
+                                                    @expense.Category
+                                                        </span>
+                                                    </td>
+                                                    <td>@expense.Date.ToString("dd/MM/yyyy")</td>
+                                                    <td class="fw-bold">€@expense.Amount.ToString("0.00")</td>
+                                                    <td>
+                                                @if (expense.IsShared)
+                                                {
+                                                                <i class="fas fa-check-circle text-success"></i>
+                                                }
+                                                else
+                                                {
+                                                                <i class="fas fa-times-circle text-muted"></i>
+                                                }
+                                                    </td>
+                                                    <td>
+                                                        <div class="d-flex">
+                                                            <button class="btn-action btn-edit edit-expense-btn"
+                                                            data-expense-id="@expense.Id"
+                                                            data-expense-description="@expense.Description"
+                                                            data-expense-category="@expense.Category"
+                                                            data-expense-amount="@expense.Amount"
+                                                            data-expense-date="@expense.Date.ToString("yyyy-MM-dd")"
+                                                            data-expense-shared="@expense.IsShared.ToString().ToLower()">
+                                                                <i class="fas fa-edit"></i>
+                                                            </button>
+                                                            <button class="btn-action btn-delete delete-expense-btn" 
+                                                            data-expense-id="@expense.Id"
+                                                            data-expense-description="@expense.Description">
+                                                                <i class="fas fa-trash-alt"></i>
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                    }
+                                }
+                                else
+                                {
+                                        <tr>
+                                            <td colspan="6" class="empty-expense-notice">
+                                                <p><i class="fas fa-info-circle me-2"></i> Nessuna spesa registrata</p>
+                                                <button class="btn-add-expense" data-bs-toggle="modal" data-bs-target="#addExpenseModal">
+                                                    <i class="fas fa-plus me-2"></i>Aggiungi la tua prima spesa
+                                                </button>
+                                            </td>
+                                        </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Riepilogo spese -->
+            <div class="expense-card">
+                <div class="expense-card-header">
+                    <h5 class="expense-card-title"><i class="fas fa-chart-pie"></i> Riepilogo Spese</h5>
+                </div>
+                <div class="expense-card-body">
+                    <div class="mb-4">
+                        <h6 class="text-uppercase text-muted small mb-3">Totale spese</h6>
+                        <div class="d-flex align-items-center">
+                            <div class="summary-amount">€@Model.TotalAmount.ToString("0.00")</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Grafico delle spese -->
+                    <div class="mb-4">
+                        <div class="chart-tabs">
+                            <div class="chart-tab active" data-chart="doughnut">Grafico a ciambella</div>
+                            <div class="chart-tab" data-chart="bar">Grafico a barre</div>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="expenseChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Spese per categoria -->
+                    <h6 class="text-uppercase text-muted small mb-3">Per categoria</h6>
+                    <div class="mb-4">
+                        @foreach (var category in Model.ExpensesByCategory)
+                        {
+                            var percentage = Model.TotalAmount > 0 ? (category.Value / Model.TotalAmount * 100) : 0;
+                            var categoryLower = category.Key.ToLower();
+                                <div class="mb-3">
+                                    <div class="category-label">
+                                        <span class="category-name">@category.Key</span>
+                                        <span class="category-amount">€@category.Value.ToString("0.00")</span>
+                                    </div>
+                                    <div class="progress">
+                                        <div class="progress-bar progress-@categoryLower" 
+                                         style="width: @percentage%"></div>
+                                    </div>
+                                </div>
+                        }
+                    </div>
+
+                    <!-- Spese per partecipante -->
+                    <h6 class="text-uppercase text-muted small mb-3">Per partecipante</h6>
+                    <div class="summary-box mb-2">
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <div class="small text-muted">Totale a persona:</div>
+                                <div class="fw-bold">€@Model.AmountPerPerson.ToString("0.00")</div>
+                            </div>
+                            <div class="col-6 text-end">
+                                <div class="small text-muted">Partecipanti:</div>
+                                <div class="fw-bold">@Model.Participants</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modale aggiungi spesa -->
+<div class="modal fade" id="addExpenseModal" tabindex="-1" aria-labelledby="addExpenseModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post">
+                <input type="hidden" name="TripId" value="@Model.TripId" />
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addExpenseModalLabel">Aggiungi Spesa</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Descrizione</label>
+                        <input type="text" class="form-control" id="description" name="Description" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="amount" class="form-label">Importo (€)</label>
+                        <input type="number" step="0.01" min="0" class="form-control" id="amount" name="Amount" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="category" class="form-label">Categoria</label>
+                        <select class="form-select" id="category" name="Category">
+                            <option value="Alloggio">Alloggio</option>
+                            <option value="Cibo">Cibo</option>
+                            <option value="Trasporti">Trasporti</option>
+                            <option value="Attività">Attività</option>
+                            <option value="Extra" selected>Extra</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="date" class="form-label">Data</label>
+                        <input type="date" class="form-control" id="date" name="Date" value="@DateTime.Now.ToString("yyyy-MM-dd")" required>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="isShared" name="IsShared" checked>
+                        <label class="form-check-label" for="isShared">
+                            Spesa condivisa tra i partecipanti
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                    <button type="submit" class="btn-add-expense">Salva</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modale modifica spesa -->
+<div class="modal fade" id="editExpenseModal" tabindex="-1" aria-labelledby="editExpenseModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" asp-page-handler="edit">
+                <input type="hidden" name="TripId" value="@Model.TripId" />
+                <input type="hidden" id="editExpenseId" name="ExpenseId" />
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editExpenseModalLabel">Modifica Spesa</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="editDescription" class="form-label">Descrizione</label>
+                        <input type="text" class="form-control" id="editDescription" name="Description" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editAmount" class="form-label">Importo (€)</label>
+                        <input type="number" step="0.01" min="0" class="form-control" id="editAmount" name="Amount" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editCategory" class="form-label">Categoria</label>
+                        <select class="form-select" id="editCategory" name="Category">
+                            <option value="Alloggio">Alloggio</option>
+                            <option value="Cibo">Cibo</option>
+                            <option value="Trasporti">Trasporti</option>
+                            <option value="Attività">Attività</option>
+                            <option value="Extra">Extra</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editDate" class="form-label">Data</label>
+                        <input type="date" class="form-control" id="editDate" name="Date" required>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="editIsShared" name="IsShared">
+                        <label class="form-check-label" for="editIsShared">
+                            Spesa condivisa tra i partecipanti
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                    <button type="submit" class="btn-add-expense">Salva modifiche</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modale elimina spesa -->
+<div class="modal fade" id="deleteExpenseModal" tabindex="-1" aria-labelledby="deleteExpenseModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" asp-page-handler="delete">
+                <input type="hidden" name="TripId" value="@Model.TripId" />
+                <input type="hidden" id="deleteExpenseId" name="ExpenseId" />
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteExpenseModalLabel">Conferma eliminazione</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Sei sicuro di voler eliminare la spesa "<span id="deleteExpenseName"></span>"?</p>
+                    <p class="text-danger">Questa operazione non può essere annullata.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                    <button type="submit" class="btn btn-danger">Elimina</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <!-- Aggiungiamo Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Animazione per le card
+            $('.expense-card').each(function(i) {
+                $(this).delay(i * 100).animate({'opacity': 1}, 300);
+            });
+            
+            // Gestione modale modifica
+            $('.edit-expense-btn').click(function() {
+                const id = $(this).data('expense-id');
+                const description = $(this).data('expense-description');
+                const category = $(this).data('expense-category');
+                const amount = $(this).data('expense-amount');
+                const date = $(this).data('expense-date');
+                const shared = $(this).data('expense-shared') === true;
+
+                $('#editExpenseId').val(id);
+                $('#editDescription').val(description);
+                $('#editCategory').val(category);
+                $('#editAmount').val(amount);
+                $('#editDate').val(date);
+                $('#editIsShared').prop('checked', shared);
+
+                $('#editExpenseModal').modal('show');
+            });
+
+            // Gestione modale elimina
+            $('.delete-expense-btn').click(function() {
+                const id = $(this).data('expense-id');
+                const description = $(this).data('expense-description');
+
+                $('#deleteExpenseId').val(id);
+                $('#deleteExpenseName').text(description);
+
+                $('#deleteExpenseModal').modal('show');
+            });
+            
+            // Aggiunta effetti visivi per interazione
+            $('.btn-action').hover(function() {
+                $(this).addClass('pulse');
+            }, function() {
+                $(this).removeClass('pulse');
+            });
+            
+            // Effetto pulsazione per i pulsanti
+            $("<style>")
+                .prop("type", "text/css")
+                .html(`
+                @@keyframes pulse {
+                    0% {
+                        transform: scale(1);
+                    }
+                    50% {
+                        transform: scale(1.1);
+                    }
+                    100% {
+                        transform: scale(1);
+                    }
+                }
+                .pulse {
+                    animation: pulse 0.5s ease-in-out;
+                }`)
+                .appendTo("head");
+            
+            // Setup dei dati per il grafico
+            const expenseData = @Html.Raw(Json.Serialize(Model.ExpensesByCategory));
+            const categories = Object.keys(expenseData);
+            const amounts = Object.values(expenseData);
+            
+            // Definizione dei colori per le categorie del grafico
+            const categoryColors = {
+                'Alloggio': '#0288d1',
+                'Cibo': '#689f38',
+                'Trasporti': '#f57c00',
+                'Attività': '#8e24aa',
+                'Extra': '#3949ab'
+            };
+            
+            const backgroundColors = categories.map(category => categoryColors[category] || '#6c757d');
+            
+            // Inizializzazione del grafico
+            const ctx = document.getElementById('expenseChart').getContext('2d');
+            let expenseChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: categories,
+                    datasets: [{
+                        data: amounts,
+                        backgroundColor: backgroundColors,
+                        borderColor: 'white',
+                        borderWidth: 2,
+                        hoverOffset: 15
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 15
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const value = context.raw;
+                                    const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                    const percentage = Math.round((value / total * 100) * 10) / 10;
+                                    return `${context.label}: €${value.toFixed(2)} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    },
+                    animation: {
+                        animateScale: true,
+                        animateRotate: true,
+                        duration: 1500,
+                        easing: 'easeOutBounce'
+                    },
+                    cutout: '60%'
+                }
+            });
+            
+            // Gestione dei tab per cambiare tipo di grafico
+            $('.chart-tab').click(function() {
+                $('.chart-tab').removeClass('active');
+                $(this).addClass('active');
+                
+                const chartType = $(this).data('chart');
+                
+                // Distruggi il grafico attuale
+                expenseChart.destroy();
+                
+                // Crea il nuovo grafico con il tipo selezionato
+                if (chartType === 'doughnut') {
+                    expenseChart = new Chart(ctx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: categories,
+                            datasets: [{
+                                data: amounts,
+                                backgroundColor: backgroundColors,
+                                borderColor: 'white',
+                                borderWidth: 2,
+                                hoverOffset: 15
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom',
+                                    labels: {
+                                        usePointStyle: true,
+                                        padding: 15
+                                    }
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            const value = context.raw;
+                                            const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                            const percentage = Math.round((value / total * 100) * 10) / 10;
+                                            return `${context.label}: €${value.toFixed(2)} (${percentage}%)`;
+                                        }
+                                    }
+                                }
+                            },
+                            animation: {
+                                animateScale: true,
+                                animateRotate: true,
+                                duration: 1500,
+                                easing: 'easeOutBounce'
+                            },
+                            cutout: '60%'
+                        }
+                    });
+                } else if (chartType === 'bar') {
+                    expenseChart = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: categories,
+                            datasets: [{
+                                data: amounts,
+                                backgroundColor: backgroundColors,
+                                borderColor: backgroundColors,
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        callback: function(value) {
+                                            return '€' + value;
+                                        }
+                                    }
+                                }
+                            },
+                            plugins: {
+                                legend: {
+                                    display: false
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            return `${context.label}: €${context.raw.toFixed(2)}`;
+                                        }
+                                    }
+                                }
+                            },
+                            animation: {
+                                duration: 1500,
+                                easing: 'easeOutQuart'
+                            },
+                            barThickness: 30,
+                            maxBarThickness: 40,
+                            borderRadius: 4
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+}

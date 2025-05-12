@@ -1,0 +1,50 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using TravelGpt.Models
+@inject SignInManager<AppUser> SignInManager
+@inject UserManager<AppUser> UserManager
+
+<ul class="navbar-nav ms-auto">
+    @if (SignInManager.IsSignedIn(User))
+    {
+        <!-- Contenuto per utenti autenticati resta invariato -->
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                @if (User.Identity?.Name != null)
+                {
+                    var user = await UserManager.FindByNameAsync(User.Identity.Name);
+                    if (!string.IsNullOrEmpty(user?.ProfilePictureUrl))
+                    {
+                        <img src="@user.ProfilePictureUrl" alt="" class="rounded-circle me-1" width="28" height="28">
+                    }
+                    <span>@(user?.FirstName ?? User.Identity.Name)</span>
+                }
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                <li><a class="dropdown-item" asp-area="" asp-page="/Account/Profile"><i class="fas fa-user-circle me-2"></i>Profilo</a></li>
+                <li><a class="dropdown-item" asp-area="" asp-page="/Itinerary/List"><i class="fas fa-suitcase me-2"></i>I miei viaggi</a></li>
+                @if (User.IsInRole("Admin"))
+                {
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" asp-area="" asp-page="/Admin/Dashboard"><i class="fas fa-chart-bar me-2"></i>Dashboard Admin</a></li>
+                    <li><a class="dropdown-item" asp-area="" asp-page="/Admin/UserManagement"><i class="fas fa-users-cog me-2"></i>Gestione Utenti</a></li>
+                }
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                    <form class="form-inline" asp-area="" asp-page="/Account/Logout" method="post">
+                        <button type="submit" class="dropdown-item"><i class="fas fa-sign-out-alt me-2"></i>Logout</button>
+                    </form>
+                </li>
+            </ul>
+        </li>
+    }
+    else
+    {
+        <li class="nav-item">
+            <a class="nav-link" asp-area="" asp-page="/Account/Register"><i class="fas fa-user-plus me-1"></i> Registrati</a>
+        </li>
+        <li class="nav-item">
+            <!-- Aggiornato per garantire la corretta navigazione -->
+            <a class="btn btn-primary login-btn" href="/Account/Login"><i class="fas fa-sign-in-alt me-1"></i> Accedi</a>
+        </li>
+    }
+</ul>

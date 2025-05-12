@@ -1,0 +1,835 @@
+﻿@page
+@model TravelGpt.Pages.DashboardModel
+@{
+    ViewData["Title"] = "Pianifica il Tuo Viaggio";
+    Layout = "_Layout";
+}
+
+@* --- Map Section --- *@
+<div class="map-container-wrapper">
+    <div class="map-container mb-4 animate-fade-in">
+        <div id="worldMap" class="world-map shadow-lg"></div>
+        @* Overlay content (Search Bar) - Initially Visible *@
+        <div id="mapOverlayContent" class="map-overlay-content p-4 rounded shadow bg-white animate-fade-in">
+            <h1 class="display-6 fw-bold mb-3">Dove vuoi andare?</h1>
+            <div class="input-group input-group-lg">
+                <span class="input-group-text bg-light border-end-0"><i class="fas fa-search text-primary"></i></span>
+                <input type="text" id="citySearch" class="form-control border-start-0" placeholder="Cerca una città o un paese...">
+                <button class="btn btn-primary px-3" type="button" id="searchButton"><i class="fas fa-arrow-right"></i></button>
+            </div>
+        </div>
+        @* Map Controls *@
+        <div class="map-controls btn-group shadow-sm">
+            <button class="btn btn-light" id="zoomIn" title="Zoom In"><i class="fas fa-plus"></i></button>
+            <button class="btn btn-light" id="zoomOut" title="Zoom Out"><i class="fas fa-minus"></i></button>
+            <button class="btn btn-light" id="resetView" title="Reset View"><i class="fas fa-sync-alt"></i></button>
+        </div>
+        @* Itinerary Builder Summary Button - Initially Hidden *@
+        <button id="showItineraryBuilderBtn" class="btn btn-primary btn-lg shadow itinerary-builder-toggle-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#itineraryBuilderOffcanvas" aria-controls="itineraryBuilderOffcanvas" style="display: none;">
+            <i class="fas fa-route me-2"></i> Il Tuo Itinerario (<span id="stopsCount">0</span>)
+        </button>
+    </div>
+</div>
+
+@* --- Location Details Offcanvas Panel (Initially Hidden) --- *@
+<div class="offcanvas offcanvas-end shadow-lg" tabindex="-1" id="locationDetailOffcanvas" aria-labelledby="locationDetailOffcanvasLabel" data-bs-scroll="true" data-bs-backdrop="false">
+    <div class="offcanvas-header bg-light border-bottom p-3">
+        <h5 class="offcanvas-title fw-bold" id="locationDetailOffcanvasLabel">
+            <i class="fas fa-map-marked-alt text-primary me-2"></i> Dettagli Destinazione
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close" id="closeLocationDetailBtn"></button>
+    </div>
+    <div class="offcanvas-body p-0">
+        @* Loading Indicator *@
+        <div id="locationDetailLoading" class="text-center p-5" style="display: none;">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Caricamento...</span>
+            </div>
+            <p class="mt-2 text-muted">Recupero informazioni sulla destinazione...</p>
+        </div>
+        @* Content Area - Populated via JS *@
+        <div id="locationDetailContent" style="display: none;">
+            <div class="location-image-header">
+                <img id="locationImage" src="" alt="Immagine Destinazione" class="img-fluid" />
+                <div class="location-header-overlay p-3">
+                    <h3 id="locationName" class="text-white fw-bold mb-1"></h3>
+                    <p id="locationCountry" class="text-white-50 small mb-2"></p>
+                    <div id="locationRating" class="rating text-warning"></div>
+                </div>
+            </div>
+
+            <div class="p-3">
+                <p id="locationDescription" class="small text-muted"></p>
+
+                <hr class="my-3">
+
+                <h5 class="fw-bold mb-3"><i class="fas fa-bed text-primary me-2"></i> Alloggi Suggeriti</h5>
+                <div id="hotelList" class="list-group list-group-flush mb-3">
+                    @* Hotel cards will be injected here *@
+                </div>
+
+                <hr class="my-3">
+
+                <h5 class="fw-bold mb-3"><i class="fas fa-hiking text-primary me-2"></i> Attività Consigliate</h5>
+                <div id="activityList" class="mb-3">
+                    @* Activity checkboxes will be injected here *@
+                </div>
+
+                <hr class="my-3">
+
+                <div class="row g-2 align-items-end">
+                    <div class="col-6">
+                        <label for="daysInLocation" class="form-label small fw-bold">Giorni di permanenza:</label>
+                        <input type="number" class="form-control form-control-sm" id="daysInLocation" value="1" min="1">
+                    </div>
+                    <div class="col-6">
+                        <button class="btn btn-success w-100" id="addStopBtn">
+                            <i class="fas fa-plus-circle me-2"></i> Aggiungi Tappa
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* --- Itinerary Builder Offcanvas Panel (Initially Hidden) --- *@
+<div class="offcanvas offcanvas-start shadow-lg" tabindex="-1" id="itineraryBuilderOffcanvas" aria-labelledby="itineraryBuilderOffcanvasLabel" data-bs-scroll="true" data-bs-backdrop="false">
+    <div class="offcanvas-header bg-light border-bottom p-3">
+        <h5 class="offcanvas-title fw-bold" id="itineraryBuilderOffcanvasLabel">
+            <i class="fas fa-route text-primary me-2"></i> Costruttore Itinerario
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body p-3">
+        <div class="mb-3">
+            <label for="itineraryName" class="form-label small fw-bold">Nome Itinerario:</label>
+            <input type="text" class="form-control form-control-sm" id="itineraryName" placeholder="Es. Tour Europeo Estivo">
+        </div>
+        <div class="mb-4 timeline-container">
+            <h6 class="fw-bold mb-3">Tappe Pianificate:</h6>
+            <ul id="stopsTimeline" class="timeline list-unstyled">
+                <li id="noStopsMessage" class="text-muted small text-center p-3 bg-light rounded">Nessuna tappa ancora aggiunta. Cerca una destinazione per iniziare.</li>
+                @* Timeline items will be injected here *@
+            </ul>
+        </div>
+        <div class="d-grid">
+            <button class="btn btn-primary" id="saveItineraryBtn" disabled>
+                <i class="fas fa-save me-2"></i> Salva Itinerario Completo
+            </button>
+        </div>
+    </div>
+</div>
+
+
+@section Styles {
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        .map-container-wrapper {
+            position: relative;
+        }
+
+        .map-container {
+            position: relative;
+            height: calc(100vh - 150px);
+            min-height: 500px;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .world-map {
+            height: 100%;
+            z-index: 1;
+        }
+
+        .map-overlay-content {
+            position: absolute;
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            width: 90%;
+            max-width: 550px;
+            backdrop-filter: blur(5px);
+            background: rgba(255, 255, 255, 0.9);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+            .map-overlay-content.hidden {
+                opacity: 0;
+                transform: translate(-50%, -20px);
+                pointer-events: none;
+            }
+
+        .map-controls {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            z-index: 999;
+        }
+
+            .map-controls .btn {
+                border-radius: 8px;
+                background-color: rgba(255, 255, 255, 0.9);
+                border: 1px solid #ddd;
+            }
+
+        .itinerary-builder-toggle-btn {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            z-index: 999;
+        }
+
+        /* Location Detail Offcanvas */
+        #locationDetailOffcanvas {
+            width: 400px;
+            border-left: 1px solid #dee2e6;
+            transition: transform .3s ease-in-out;
+        }
+
+        .location-image-header {
+            position: relative;
+            height: 200px;
+            background-color: #e9ecef;
+        }
+
+            .location-image-header img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+        .location-header-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.7) 20%, transparent);
+        }
+
+        .rating i {
+            font-size: 0.9em;
+        }
+
+        #hotelList .list-group-item, #activityList .form-check {
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+            transition: background-color 0.2s ease;
+        }
+
+        #hotelList .list-group-item {
+            cursor: pointer;
+            border: 1px solid #eee;
+        }
+
+            #hotelList .list-group-item:hover {
+                background-color: #f8f9fa;
+            }
+
+            #hotelList .list-group-item.selected {
+                background-color: var(--bs-primary-bg-subtle);
+                border-color: var(--bs-primary);
+            }
+
+        #hotelList .hotel-price {
+            font-size: 0.9em;
+        }
+
+        #activityList .form-check {
+            background-color: #f8f9fa;
+            padding: 0.75rem 1rem;
+            border: 1px solid transparent;
+        }
+
+            #activityList .form-check input:checked + label {
+                font-weight: bold;
+            }
+
+            #activityList .form-check:hover {
+                background-color: #f1f3f5;
+            }
+
+        /* Itinerary Builder Offcanvas */
+        #itineraryBuilderOffcanvas {
+            width: 380px;
+            border-right: 1px solid #dee2e6;
+        }
+
+        .timeline-container {
+            position: relative;
+        }
+
+        .timeline:before {
+            content: '';
+            position: absolute;
+            top: 10px;
+            bottom: 10px;
+            left: 10px;
+            width: 3px;
+            background-color: #e9ecef;
+            border-radius: 3px;
+            z-index: 1;
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-left: 35px;
+            margin-bottom: 1.5rem;
+            z-index: 2;
+        }
+
+            .timeline-item::before {
+                content: '';
+                position: absolute;
+                left: 2px;
+                top: 5px;
+                width: 18px;
+                height: 18px;
+                background-color: white;
+                border: 3px solid var(--primary-color);
+                border-radius: 50%;
+                z-index: 3;
+            }
+
+        .timeline-item-content {
+            background-color: #f8f9fa;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            border: 1px solid #eee;
+        }
+
+            .timeline-item-content h6 {
+                font-size: 0.95rem;
+            }
+
+            .timeline-item-content p {
+                font-size: 0.85rem;
+                margin-bottom: 0.25rem;
+            }
+
+            .timeline-item-content .badge {
+                font-size: 0.75rem;
+            }
+
+        /* Animation */
+        .animate-fade-in {
+            animation: fadeIn 0.6s ease forwards;
+            opacity: 0;
+        }
+
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+    </style>
+}
+
+    @section Scripts {
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        $(document).ready(function () {
+            // --- State Variables ---
+            let currentCityInfo = null; // Holds data from API for the selected city
+            let selectedHotel = null; // { id, name, price }
+            let selectedActivities = []; // [ { id, name }, ... ]
+            let plannedStops = []; // [ { cityInfo, hotel, activities, days }, ... ]
+            let map; // Leaflet map instance
+            let searchMarker = null; // Marker for current search result
+            const locationOffcanvas = new bootstrap.Offcanvas('#locationDetailOffcanvas');
+            const itineraryOffcanvas = new bootstrap.Offcanvas('#itineraryBuilderOffcanvas');
+
+            // --- Leaflet Map Initialization ---
+            initializeMap();
+
+            // --- Event Listeners ---
+            $('#searchButton').click(performSearch);
+            $('#citySearch').on('keyup', function (e) { if (e.key === 'Enter') performSearch(); });
+            $('#zoomIn').click(() => map.zoomIn());
+            $('#zoomOut').click(() => map.zoomOut());
+            $('#resetView').click(() => {
+                map.flyTo([20, 10], 2);
+                resetUI(); // Reset UI when resetting map view
+            });
+            $('#closeLocationDetailBtn').click(resetUI); // Also reset UI on manual close
+
+            // Use event delegation for dynamically added elements
+            $(document).on('click', '.hotel-select-card', function () {
+                $('.hotel-select-card').removeClass('selected shadow').addClass('shadow-sm'); // Deselect others
+                $(this).addClass('selected shadow').removeClass('shadow-sm'); // Select current
+                selectedHotel = {
+                    id: $(this).data('hotel-id'),
+                    name: $(this).data('hotel-name'),
+                    price: $(this).data('hotel-price')
+                };
+                console.log("Selected Hotel:", selectedHotel);
+            });
+
+            $(document).on('change', '.activity-checkbox', function () {
+                const activity = {
+                    id: $(this).val(),
+                    name: $(this).data('activity-name')
+                };
+                if ($(this).is(':checked')) {
+                    if (!selectedActivities.find(a => a.id === activity.id)) {
+                        selectedActivities.push(activity);
+                    }
+                } else {
+                    selectedActivities = selectedActivities.filter(a => a.id !== activity.id);
+                }
+                console.log("Selected Activities:", selectedActivities);
+            });
+
+            $('#addStopBtn').click(addStopToItinerary);
+            $('#saveItineraryBtn').click(saveFullItinerary);
+
+            // --- Functions ---
+            function initializeMap() {
+                map = L.map('worldMap', { center: [20, 10], zoom: 2, minZoom: 2, maxBounds: [[-90, -180], [90, 180]], maxBoundsViscosity: 1.0 });
+                L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                    attribution: '&copy; OSM &copy; CARTO', subdomains: 'abcd'
+                }).addTo(map);
+            }
+
+            function performSearch() {
+                var query = $('#citySearch').val().trim();
+                if (!query) return;
+
+                $('#mapOverlayContent').addClass('hidden'); // Hide search bar smoothly
+                showLocationLoading(true); // Show loading in offcanvas
+                locationOffcanvas.show(); // Show the offcanvas panel
+
+                // Use Nominatim for Geocoding first
+                $.ajax({
+                    url: `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`,
+                    method: 'GET',
+                    dataType: 'json',
+                    success: function (geoData) {
+                        if (geoData && geoData.length > 0) {
+                            var result = geoData[0];
+                            map.flyTo([result.lat, result.lon], 10);
+
+                            if (searchMarker) map.removeLayer(searchMarker);
+                            searchMarker = L.marker([result.lat, result.lon])
+                                .addTo(map)
+                                .bindPopup(`<b>${result.display_name}</b>`)
+                                .openPopup();
+
+                            // Usa la nuova funzione con retry
+                            fetchLocationDetailsWithRetry(result.display_name.split(',')[0]);
+                        } else {
+                            alert('Località non trovata.');
+                            showLocationLoading(false);
+                            resetUI();
+                        }
+                    },
+                    error: function () {
+                        alert('Errore nella geocodifica. Riprova.');
+                        showLocationLoading(false);
+                        resetUI();
+                    }
+                });
+            }
+
+            // Aggiungi questa funzione al tuo JavaScript
+            function fetchLocationDetailsWithRetry(cityName, maxRetries = 2, currentRetry = 0) {
+                console.log(`Fetching details for: ${cityName} (attempt ${currentRetry + 1})`);
+
+                showLocationLoading(true);
+
+                $.ajax({
+                    url: `/api/locationdetails?cityName=${encodeURIComponent(cityName)}`,
+                    method: 'GET',
+                    dataType: 'json',
+                    timeout: 10000, // 10 secondi di timeout
+                    success: function (data) {
+                        console.log("API Response:", data);
+                        if (data && data.name) {
+                            currentCityInfo = data;
+                            populateLocationDetails(data);
+                            showLocationLoading(false);
+                            $('#locationDetailContent').fadeIn();
+                        } else {
+                            handleFetchError("Dati ricevuti non validi.");
+                        }
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        console.error("API Error:", textStatus, errorThrown, jqXHR.responseText);
+
+                        // Riprova in caso di errore
+                        if (currentRetry < maxRetries) {
+                            console.log(`Retry ${currentRetry + 1} of ${maxRetries}`);
+                            setTimeout(() => {
+                                fetchLocationDetailsWithRetry(cityName, maxRetries, currentRetry + 1);
+                            }, 1000); // Attendi 1 secondo prima di riprovare
+                        } else {
+                            // Fallimento dopo tutti i tentativi
+                            $('#locationDetailContent').html(`
+                            <div class="alert alert-warning m-3">
+                                <h5><i class="fas fa-exclamation-triangle me-2"></i> Errore nel recupero dati</h5>
+                                <p>Non è stato possibile recuperare le informazioni per "${cityName}".</p>
+                                <div class="mt-3">
+                                    <button id="retryFetchBtn" class="btn btn-sm btn-primary">Riprova</button>
+                                    <button id="continueAnywayBtn" class="btn btn-sm btn-outline-secondary ms-2">Continua comunque</button>
+                                </div>
+                            </div>
+                        `).fadeIn();
+
+                            $('#retryFetchBtn').click(function () {
+                                $('#locationDetailContent').hide();
+                                fetchLocationDetailsWithRetry(cityName, maxRetries, 0);
+                            });
+
+                            $('#continueAnywayBtn').click(function () {
+                                // Crea dati minimali per poter continuare
+                                const fallbackData = {
+                                    name: cityName,
+                                    country: "Informazione non disponibile",
+                                    description: "Informazioni non disponibili per questa località.",
+                                    hotels: [],
+                                    activities: [],
+                                    rating: 0
+                                };
+                                currentCityInfo = fallbackData;
+                                populateLocationDetails(fallbackData);
+                            });
+
+                            showLocationLoading(false);
+                        }
+                    }
+                });
+            }
+
+            function fetchLocationDetails(cityName) {
+                console.log(`Fetching details for: ${cityName}`);
+                $.ajax({
+                    url: `/api/locationdetails?cityName=${encodeURIComponent(cityName)}`,
+                    method: 'GET',
+                    dataType: 'json',
+                    success: function (data) {
+                        console.log("API Response:", data);
+                        if (data && data.name) {
+                            // Controlla se i dati sono di fallback o incompleti
+                            if (data.country === "Informazione non disponibile" &&
+                                data.latitude === 0 && data.longitude === 0) {
+
+                                // Mostra un messaggio più specifico all'utente
+                                currentCityInfo = data;
+                                populateLocationDetails(data);
+                                showLocationLoading(false);
+                                $('#locationDetailContent').fadeIn();
+
+                                // Aggiungi un avviso nella pagina
+                                $('#locationDetailContent').prepend(`
+                                            <div class="alert alert-warning mb-3" role="alert">
+                                                <i class="fas fa-info-circle me-2"></i>
+                                                Informazioni limitate disponibili per ${cityName}. Prova con una località più conosciuta o una città più grande.
+                                            </div>
+                                        `);
+
+                            } else {
+                                // Dati validi
+                                currentCityInfo = data;
+                                populateLocationDetails(data);
+                                showLocationLoading(false);
+                                $('#locationDetailContent').fadeIn();
+                            }
+                        } else {
+                            handleFetchError("Dati ricevuti non validi.");
+                        }
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        console.error("API Error:", textStatus, errorThrown, jqXHR.responseText);
+                        handleFetchError(`Errore API: ${errorThrown || 'Impossibile recuperare i dettagli.'}`);
+                    }
+                });
+            }
+
+            function handleFetchError(message) {
+                alert(message);
+                showLocationLoading(false);
+                resetUI();
+            }
+
+            function populateLocationDetails(data) {
+                // Populate Header
+                $('#locationImage').attr('src', data.imageUrlSuggestion || '/images/placeholder.jpg');
+                $('#locationName').text(data.name);
+                $('#locationCountry').text(data.country || '');
+                $('#locationRating').html(renderStars(data.rating || 0) + ` <span class="small text-white-50">(${(data.rating || 0).toFixed(1)})</span>`);
+                $('#locationDescription').text(data.description || 'Nessuna descrizione disponibile.');
+
+                // Populate Hotels
+                const $hotelList = $('#hotelList');
+                $hotelList.empty();
+                selectedHotel = null;
+                if (data.hotels && data.hotels.length > 0) {
+                    data.hotels.forEach(hotel => {
+                        $hotelList.append(`
+                                    <div class="list-group-item hotel-select-card shadow-sm" data-hotel-id="${hotel.id}" data-hotel-name="${hotel.name}" data-hotel-price="${hotel.pricePerNight || 0}">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h6 class="mb-1 fw-bold">${hotel.name}</h6>
+                                            <small class="hotel-price text-primary fw-bold">€${hotel.pricePerNight || 'N/D'}</small>
+                                        </div>
+                                        <div class="rating text-warning mb-1 small">
+                                            ${renderStars(hotel.rating || 0)} <span class="ms-1 text-muted">(${(hotel.rating || 0).toFixed(1)})</span>
+                                        </div>
+                                        <p class="mb-0 small text-muted">${hotel.description || ''}</p>
+                                    </div>
+                                `);
+                    });
+                } else {
+                    $hotelList.append('<p class="text-muted small p-3">Nessun hotel suggerito trovato.</p>');
+                }
+
+                // Populate Activities
+                const $activityList = $('#activityList');
+                $activityList.empty();
+                selectedActivities = [];
+                if (data.activities && data.activities.length > 0) {
+                    data.activities.forEach(activity => {
+                        const activityId = `activity-${activity.id || Math.random().toString(36).substr(2, 9)}`;
+                        $activityList.append(`
+                                    <div class="form-check">
+                                        <input class="form-check-input activity-checkbox" type="checkbox" value="${activity.id || activity.name}" id="${activityId}" data-activity-name="${activity.name}">
+                                        <label class="form-check-label small w-100" for="${activityId}">
+                                            <strong>${activity.name}</strong><br>
+                                            <span class="text-muted">${activity.description || ''}</span>
+                                        </label>
+                                    </div>
+                                `);
+                    });
+                } else {
+                    $activityList.append('<p class="text-muted small">Nessuna attività suggerita trovata.</p>');
+                }
+                $('#daysInLocation').val(1); // Reset days
+            }
+
+            function addStopToItinerary() {
+                const days = parseInt($('#daysInLocation').val()) || 1;
+
+                if (!currentCityInfo) {
+                    alert("Errore: Nessuna città selezionata. Per favore cerca e seleziona una destinazione prima di aggiungerla.");
+                    return;
+                }
+
+                // Verifica se currentCityInfo.name esiste
+                if (!currentCityInfo.name) {
+                    alert("Errore: I dati della città selezionata sono incompleti. Prova a cercare di nuovo.");
+                    console.error("currentCityInfo manca il nome:", currentCityInfo);
+                    return;
+                }
+
+                // Sicuro accesso agli oggetti che potrebbero essere null
+                const safeHotel = selectedHotel ? {
+                    id: selectedHotel.id || "",
+                    name: selectedHotel.name || "",
+                    price: typeof selectedHotel.price === 'number' ? selectedHotel.price : 0
+                } : null;
+
+                // Filtra solo le attività valide
+                const safeActivities = Array.isArray(selectedActivities) ?
+                    selectedActivities.filter(a => a && a.name).map(a => ({
+                        id: a.id || "",
+                        name: a.name || ""
+                    })) : [];
+
+                const stop = {
+                    cityInfo: currentCityInfo,
+                    hotel: safeHotel,
+                    activities: safeActivities,
+                    days: days
+                };
+
+                plannedStops.push(stop);
+                console.log("Added Stop:", stop);
+                console.log("All Stops:", plannedStops);
+
+                updateItineraryTimeline();
+                updateStopsCount();
+                $('#saveItineraryBtn').prop('disabled', false);
+                $('#showItineraryBuilderBtn').show();
+
+                // Reset per la prossima ricerca
+                resetUI();
+                alert(`${currentCityInfo.name} aggiunto come tappa! Cerca la prossima destinazione.`);
+            }
+
+            function updateItineraryTimeline() {
+                const $timeline = $('#stopsTimeline');
+                $('#noStopsMessage').hide();
+                $timeline.empty();
+
+                plannedStops.forEach((stop, index) => {
+                    const hotelName = stop.hotel ? stop.hotel.name : 'Nessuno selezionato';
+                    const activitiesCount = stop.activities.length;
+                    $timeline.append(`
+                                <li class="timeline-item">
+                                    <div class="timeline-item-content">
+                                        <h6 class="fw-bold mb-1 d-flex justify-content-between">
+                                            <span>Tappa ${index + 1}: ${stop.cityInfo.name}</span>
+                                            <span class="badge bg-secondary rounded-pill">${stop.days} ${stop.days > 1 ? 'giorni' : 'giorno'}</span>
+                                        </h6>
+                                        <p class="text-muted"><i class="fas fa-bed fa-xs me-1"></i> ${hotelName}</p>
+                                        <p class="text-muted"><i class="fas fa-hiking fa-xs me-1"></i> ${activitiesCount} ${activitiesCount === 1 ? 'attività' : 'attività'} selezionate</p>
+                                        <button class="btn btn-sm btn-outline-danger remove-stop-btn" data-stop-index="${index}">
+                                            <i class="fas fa-trash-alt fa-xs"></i>
+                                        </button>
+                                    </div>
+                                </li>
+                            `);
+                });
+            }
+
+            function updateStopsCount() {
+                $('#stopsCount').text(plannedStops.length);
+            }
+
+            function saveFullItinerary() {
+                const itineraryName = $('#itineraryName').val().trim() || `Itinerario del ${new Date().toLocaleDateString()}`;
+
+                if (plannedStops.length === 0) {
+                    alert("Aggiungi almeno una tappa prima di salvare.");
+                    return;
+                }
+
+                // Mostra un indicatore di caricamento
+                $('#saveItineraryBtn').prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-2"></i> Salvataggio in corso...');
+
+                // Prepara i dati in un formato più semplice per evitare problemi di serializzazione
+                const itineraryData = {
+                    name: itineraryName,
+                    stops: plannedStops.map((stop, index) => ({
+                        cityName: stop.cityInfo.name,
+                        country: stop.cityInfo.country || "Non specificato",
+                        latitude: stop.cityInfo.latitude || 0,
+                        longitude: stop.cityInfo.longitude || 0,
+                        days: stop.days,
+                        order: index,
+                        // Gestisci null/undefined in modo sicuro
+                        selectedHotelId: stop.hotel ? stop.hotel.id : null,
+                        selectedHotelName: stop.hotel ? stop.hotel.name : null,
+                        selectedHotelPrice: stop.hotel && stop.hotel.price ? stop.hotel.price : 0,
+                        // Assicurati che le liste non siano mai null
+                        selectedActivityIds: stop.activities ? stop.activities.map(a => a.id || "") : [],
+                        selectedActivityNames: stop.activities ? stop.activities.map(a => a.name || "") : []
+                    }))
+                };
+
+                console.log("Sending itinerary data:", itineraryData);
+
+                // Salva l'itinerario tramite chiamata AJAX
+                $.ajax({
+                    url: '/Itinerary/Create',
+                    method: 'POST',
+                    data: JSON.stringify(itineraryData),
+                    contentType: 'application/json',
+                    success: function (response) {
+                        if (response.success) {
+                            alert("Itinerario salvato con successo!");
+                            // Reindirizza alla pagina dei dettagli dell'itinerario
+                            window.location.href = `/Itinerary/Details/${response.tripId}`;
+                        } else {
+                            console.error("Server response error:", response);
+                            alert("Errore nel salvataggio dell'itinerario: " + (response.message || "Errore sconosciuto"));
+                            $('#saveItineraryBtn').prop('disabled', false).html('<i class="fas fa-save me-2"></i> Salva Itinerario Completo');
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("AJAX error:", xhr.responseText);
+                        alert("Errore di comunicazione con il server. Riprova più tardi.");
+                        $('#saveItineraryBtn').prop('disabled', false).html('<i class="fas fa-save me-2"></i> Salva Itinerario Completo');
+                    }
+                });
+            }
+
+            // Funzione helper per mostrare messaggi all'utente
+            function showMessage(title, message, type) {
+                // Se stai usando Bootstrap 5
+                const alertClass = type === "success" ? "alert-success" :
+                    type === "error" ? "alert-danger" :
+                        "alert-info";
+
+                const alertHtml = `
+                <div class="alert ${alertClass} alert-dismissible fade show" role="alert">
+                    <strong>${title}</strong>: ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            `;
+
+                // Aggiungi l'alert alla pagina
+                const alertContainer = $("#alertContainer");
+                if (alertContainer.length === 0) {
+                    // Se non esiste un container, creane uno
+                    $("body").prepend(`<div id="alertContainer" style="position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; width: 80%; max-width: 500px;">${alertHtml}</div>`);
+                } else {
+                    alertContainer.html(alertHtml);
+                }
+
+                // Nascondi automaticamente dopo 5 secondi
+                setTimeout(() => {
+                    $(".alert").alert('close');
+                }, 5000);
+            }
+
+            // Gestione eventi di rimozione tappa
+            $(document).on('click', '.remove-stop-btn', function () {
+                const index = $(this).data('stop-index');
+                if (confirm(`Vuoi davvero rimuovere la tappa a ${plannedStops[index].cityInfo.name}?`)) {
+                    plannedStops.splice(index, 1);
+                    updateItineraryTimeline();
+                    updateStopsCount();
+
+                    if (plannedStops.length === 0) {
+                        $('#saveItineraryBtn').prop('disabled', true);
+                        $('#showItineraryBuilderBtn').hide();
+                    }
+                }
+            });
+
+            function showLocationLoading(isLoading) {
+                if (isLoading) {
+                    $('#locationDetailLoading').show();
+                    $('#locationDetailContent').hide();
+                } else {
+                    $('#locationDetailLoading').hide();
+                }
+            }
+
+            function resetUI() {
+                locationOffcanvas.hide(); // Hide detail panel
+                $('#mapOverlayContent').removeClass('hidden'); // Show search bar
+                $('#locationDetailContent').hide(); // Hide content in offcanvas
+                showLocationLoading(false); // Ensure loading is hidden
+                if (searchMarker) {
+                    map.removeLayer(searchMarker); // Remove temp marker
+                    searchMarker = null;
+                }
+                // Reset selections
+                currentCityInfo = null;
+                selectedHotel = null;
+                selectedActivities = [];
+            }
+
+            function renderStars(rating) {
+                let stars = '';
+                const fullStars = Math.floor(rating);
+                const halfStar = rating % 1 >= 0.5;
+                const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
+                for (let i = 0; i < fullStars; i++) stars += '<i class="fas fa-star"></i> ';
+                if (halfStar) stars += '<i class="fas fa-star-half-alt"></i> ';
+                for (let i = 0; i < emptyStars; i++) stars += '<i class="far fa-star"></i> ';
+                return stars || '<i class="far fa-star"></i> '.repeat(5);
+            }
+
+            function truncateText(text, maxLength) {
+                return text && text.length > maxLength ? text.substring(0, maxLength) + '...' : text || '';
+            }
+        });
+    </script>
+}

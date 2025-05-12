@@ -1,0 +1,563 @@
+﻿@page "{id:int}"
+@model TravelGpt.Pages.Itinerary.DetailsModel
+@{
+    ViewData["Title"] = $"Itinerario: {Model.TripPlan.Title}";
+}
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <!-- Sezione Intestazione -->
+        <div class="col-12 mb-4">
+            <div class="card shadow-sm border-0 rounded-3">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <h2 class="mb-1">@Model.TripPlan.Title</h2>
+                            <p class="text-muted mb-0">
+                                <i class="far fa-calendar-alt me-1"></i> @Model.TripPlan.StartDate.ToString("dd/MM/yyyy") - @Model.TripPlan.EndDate.ToString("dd/MM/yyyy")
+                                <span class="mx-2">•</span>
+                                <i class="fas fa-map-marker-alt me-1"></i> @Model.TotalStops tappe
+                            </p>
+                        </div>
+                        <div class="btn-group">
+                            <a asp-page="Edit" asp-route-id="@Model.TripPlan.Id" class="btn btn-outline-primary">
+                                <i class="fas fa-edit me-2"></i>Modifica
+                            </a>
+                            <a asp-page="/Expenses/Manage" asp-route-tripId="@Model.TripPlan.Id" class="btn btn-outline-success">
+                                <i class="fas fa-euro-sign me-2"></i>Gestisci Spese
+                            </a>
+                            <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                                <i class="fas fa-trash-alt me-2"></i>Elimina
+                            </button>
+                        </div>
+                    </div>
+
+                    @if (!string.IsNullOrWhiteSpace(Model.TripPlan.Description))
+                    {
+                        <p class="lead">@Model.TripPlan.Description</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Mappa dell'itinerario -->
+        <div class="col-lg-8 mb-4">
+            <div class="card shadow-sm border-0 rounded-3 h-100">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0"><i class="fas fa-route text-primary me-2"></i> Percorso del viaggio</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div id="itineraryMap" style="height: 500px;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistiche a destra -->
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow-sm border-0 rounded-3 h-100">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0"><i class="fas fa-chart-pie text-primary me-2"></i> Riepilogo</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-4">
+                        <h6 class="text-uppercase text-muted small mb-2">Durata</h6>
+                        <div class="d-flex align-items-center">
+                            <div class="display-6 me-3">@Model.TripDuration</div>
+                            <span class="text-muted">giorni</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <h6 class="text-uppercase text-muted small mb-2">Distanza totale</h6>
+                        <div class="d-flex align-items-center">
+                            <div class="display-6 me-3">@Math.Round(Model.TotalDistance, 0)</div>
+                            <span class="text-muted">km</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <h6 class="text-uppercase text-muted small mb-2">Budget stimato</h6>
+                        <div class="d-flex align-items-center">
+                            <div class="display-6 me-3">@Math.Round(Model.TotalCost, 0)€</div>
+                            <span class="text-muted small text-nowrap">
+                                <a href="#expensesBreakdown" class="text-decoration-none">
+                                    <i class="fas fa-info-circle"></i> Dettagli
+                                </a>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div id="expensesBreakdown" class="mt-3">
+                        <div class="progress mb-2" style="height: 5px;">
+                            <div class="progress-bar bg-primary" style="width: @(Model.LodgingCost / Model.TotalCost * 100)%"></div>
+                            <div class="progress-bar bg-success" style="width: @(Model.ActivitiesCost / Model.TotalCost * 100)%"></div>
+                            <div class="progress-bar bg-warning" style="width: @(Model.ExpensesCost / Model.TotalCost * 100)%"></div>
+                        </div>
+                        <div class="d-flex justify-content-between small text-muted">
+                            <span><i class="fas fa-circle text-primary me-1"></i> Alloggi (@Math.Round(Model.LodgingCost, 0)€)</span>
+                            <span><i class="fas fa-circle text-success me-1"></i> Attività (@Math.Round(Model.ActivitiesCost, 0)€)</span>
+                            <span><i class="fas fa-circle text-warning me-1"></i> Extra (@Math.Round(Model.ExpensesCost, 0)€)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Tappe dettagli -->
+        <div class="col-12 mb-4">
+            <div class="card shadow-sm border-0 rounded-3">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0"><i class="fas fa-map-marked-alt text-primary me-2"></i> Tappe dell'itinerario</h5>
+                </div>
+                <div class="card-body pb-0">
+                    <ul class="timeline-vertical">
+                        @foreach (var stop in Model.TripPlan.Stops.OrderBy(s => s.Order))
+                        {
+                            <li class="timeline-item">
+                                <div class="timeline-indicator bg-primary">
+                                    <i class="fas fa-map-marker-alt text-white"></i>
+                                </div>
+                                <div class="timeline-content card mb-4">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between">
+                                            <h5 class="mb-1">@stop.CityName, @stop.Country</h5>
+                                            <span class="badge bg-secondary rounded-pill">@stop.Days @(stop.Days > 1 ? "giorni" : "giorno")</span>
+                                        </div>
+                                        <p class="text-muted small mb-3">@stop.Description</p>
+
+                                        @if (stop.Hotel != null)
+                                        {
+                                            <div class="mb-3">
+                                                <h6><i class="fas fa-bed text-primary me-1"></i> Alloggio</h6>
+                                                <div class="card bg-light border-0">
+                                                    <div class="card-body py-2 px-3">
+                                                        <div class="d-flex justify-content-between align-items-center">
+                                                            <div>
+                                                                <span class="fw-bold">@stop.Hotel.Name</span>
+                                                                <div class="text-warning small">
+                                                                    @Html.Raw(string.Join("", Enumerable.Range(0, (int)Math.Floor(stop.Hotel.Rating)).Select(_ => "<i class=\"fas fa-star\"></i> ")))
+                                                                    @if (stop.Hotel.Rating % 1 >= 0.5)
+                                                                    {
+                                                                        <i class="fas fa-star-half-alt"></i>
+                                                                    }
+                                                                </div>
+                                                                <p class="small text-muted mb-0">@stop.Hotel.Description</p>
+                                                            </div>
+                                                            <div class="text-end">
+                                                                <div class="fw-bold text-primary">€@stop.Hotel.PricePerNight</div>
+                                                                <div class="small text-muted">per notte</div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+
+                                        @if (stop.Activities.Any())
+                                        {
+                                            <div>
+                                                <h6><i class="fas fa-hiking text-primary me-1"></i> Attività (@stop.Activities.Count())</h6>
+                                                <div class="row g-2">
+                                                    @foreach (var activity in stop.Activities)
+                                                    {
+                                                        <div class="col-md-6 col-lg-4">
+                                                            <div class="card bg-light border-0 h-100">
+                                                                <div class="card-body py-2 px-3">
+                                                                    <h6 class="card-title mb-1 small fw-bold">@activity.Name</h6>
+                                                                    <p class="card-text text-muted small mb-1">@activity.Description</p>
+                                                                    @if (activity.Price > 0)
+                                                                    {
+                                                                        <span class="small fw-bold text-primary">€@activity.Price</span>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <span class="small text-success">Gratis</span>
+                                                                    }
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Itinerario Generato -->
+    @if (!string.IsNullOrWhiteSpace(Model.TripPlan.GeneratedContent))
+    {
+        <div class="row">
+            <div class="col-12 mb-4">
+                <div class="card shadow-sm border-0 rounded-3">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0"><i class="fas fa-list-alt text-primary me-2"></i> Programma dettagliato</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="content-formatted">
+                            @foreach (var line in Model.TripPlan.GeneratedContent.Split("\n"))
+                            {
+                                if (line.StartsWith("Giorno"))
+                                {
+                                    <h5 class="mt-3 mb-2">@line</h5>
+                                }
+                                else
+                                {
+                                    <p>@line</p>
+                                }
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Modal di conferma eliminazione -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Conferma eliminazione</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Sei sicuro di voler eliminare questo itinerario? Questa azione non può essere annullata.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                <form method="post" asp-page-handler="Delete" asp-route-id="@Model.TripPlan.Id">
+                    <button type="submit" class="btn btn-danger">Elimina</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Inizializzazione mappa con stile migliorato
+            var map = L.map('itineraryMap', {
+                zoomControl: true,
+                scrollWheelZoom: false
+            });
+
+            // Usa un tile layer più dettagliato e adatto ai percorsi
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; OSM &copy; CARTO',
+                subdomains: 'abcd'
+            }).addTo(map);
+
+            // Carica dati delle tappe
+            const stops = @Html.Raw(Json.Serialize(Model.TripPlan.Stops.OrderBy(s => s.Order).Select(s => new {
+                name = s.CityName,
+                lat = s.Latitude,
+                lng = s.Longitude,
+                days = s.Days,
+                description = s.Description,
+                order = s.Order
+            })));
+
+            if (stops.length === 0) {
+                // Se non ci sono tappe, centra su Italia
+                map.setView([41.9, 12.5], 5);
+            } else if (stops.length === 1) {
+                // Se c'è una sola tappa, centra su di essa
+                map.setView([stops[0].lat, stops[0].lng], 10);
+                
+                // Marker personalizzato con popup
+                createCustomMarker(stops[0], 1).addTo(map).openPopup();
+            } else {
+                // Crea percorso tra le tappe
+                const points = stops.map(s => [s.lat, s.lng]);
+                
+                // Crea una linea principale del percorso con stile migliorato
+                const mainRoute = L.polyline(points, {
+                    color: '#4285F4',
+                    weight: 4,
+                    opacity: 0.8,
+                    lineCap: 'round',
+                    lineJoin: 'round'
+                }).addTo(map);
+
+                // Linea secondaria per effetto ombra (senza bringToBack che causava errori)
+                L.polyline(points, {
+                    color: '#072A79',
+                    weight: 7,
+                    opacity: 0.3,
+                    lineCap: 'round',
+                    lineJoin: 'round'
+                }).addTo(map);
+                
+                // Aggiungi markers personalizzati per ogni tappa
+                stops.forEach((stop, i) => {
+                    createCustomMarker(stop, i + 1).addTo(map);
+                    
+                    // Aggiungi label con la distanza tra le tappe se non è l'ultima tappa
+                    if (i < stops.length - 1) {
+                        // Calcola punto medio tra tappe consecutive
+                        const midLat = (stop.lat + stops[i + 1].lat) / 2;
+                        const midLng = (stop.lng + stops[i + 1].lng) / 2;
+                        
+                        // Calcola distanza approssimativa in km
+                        const distance = calculateDistance(
+                            stop.lat, stop.lng, 
+                            stops[i + 1].lat, stops[i + 1].lng
+                        );
+                        
+                        // Aggiungi label con la distanza
+                        if (distance > 5) { // Solo se la distanza è significativa
+                            L.marker([midLat, midLng], {
+                                icon: L.divIcon({
+                                    className: 'distance-label',
+                                    html: `<div>${Math.round(distance)} km</div>`,
+                                    iconSize: [80, 20],
+                                    iconAnchor: [40, 10]
+                                })
+                            }).addTo(map);
+                        }
+                    }
+                });
+
+                // Fit bounds con padding
+                map.fitBounds(L.latLngBounds(points), { padding: [50, 50] });
+            }
+            
+            // Funzione per creare marker personalizzati
+            function createCustomMarker(stop, index) {
+                // Determina lo stile del marker in base alla posizione nell'itinerario
+                let markerClass = 'marker-middle';
+                if (index === 1) markerClass = 'marker-start';
+                if (index === stops.length) markerClass = 'marker-end';
+                
+                // Crea il marker con icon personalizzata
+                return L.marker([stop.lat, stop.lng], {
+                    icon: L.divIcon({
+                        className: `custom-marker ${markerClass}`,
+                        html: `<div class="map-marker-container">
+                                <div class="map-marker-label">${index}</div>
+                                <div class="map-marker-pulse"></div>
+                              </div>`,
+                        iconSize: [40, 40],
+                        iconAnchor: [20, 20]
+                    })
+                }).bindPopup(
+                    `<div class="popup-content">
+                        <h5>${stop.name}</h5>
+                        <div class="popup-badge">${stop.days} ${stop.days > 1 ? 'giorni' : 'giorno'}</div>
+                        <p>${stop.description || 'Nessuna descrizione'}</p>
+                    </div>`,
+                    { 
+                        className: 'custom-popup',
+                        maxWidth: 300
+                    }
+                );
+            }
+            
+            // Funzione per calcolare la distanza tra due punti (formula dell'emisenoverso)
+            function calculateDistance(lat1, lon1, lat2, lon2) {
+                const R = 6371; // Raggio della terra in km
+                const dLat = toRad(lat2 - lat1);
+                const dLon = toRad(lon2 - lon1);
+                const a = 
+                    Math.sin(dLat/2) * Math.sin(dLat/2) +
+                    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * 
+                    Math.sin(dLon/2) * Math.sin(dLon/2); 
+                const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+                return R * c;
+            }
+            
+            function toRad(value) {
+                return value * Math.PI / 180;
+            }
+        });
+    </script>
+}
+
+@section Styles {
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        /* Timeline verticale */
+        .timeline-vertical {
+            position: relative;
+            list-style: none;
+            padding-left: 30px;
+            margin-left: 10px;
+        }
+
+            .timeline-vertical:before {
+                content: '';
+                position: absolute;
+                left: 10px;
+                top: 0;
+                bottom: 0;
+                width: 2px;
+                background: #e9ecef;
+            }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .timeline-indicator {
+            position: absolute;
+            left: -30px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 20px;
+            font-size: 10px;
+        }
+
+        .timeline-content {
+            margin-left: 10px;
+            margin-right: 0;
+            border-radius: 8px;
+        }
+
+        /* Custom map markers */
+        .custom-marker {
+            background: transparent;
+            border: none;
+        }
+
+        .map-marker-container {
+            position: relative;
+            width: 40px;
+            height: 40px;
+        }
+
+        .map-marker-label {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #3f51b5;
+            color: white;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            font-weight: bold;
+            font-size: 12px;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+            z-index: 2;
+            border: 2px solid white;
+        }
+
+        .marker-start .map-marker-label {
+            background-color: #4CAF50;
+        }
+
+        .marker-end .map-marker-label {
+            background-color: #F44336;
+        }
+
+        /* Effetto pulsante intorno al marker */
+        .map-marker-pulse {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: rgba(63, 81, 181, 0.4);
+            z-index: 1;
+            animation: pulse 2s infinite;
+        }
+
+        .marker-start .map-marker-pulse {
+            background-color: rgba(76, 175, 80, 0.4);
+        }
+
+        .marker-end .map-marker-pulse {
+            background-color: rgba(244, 67, 54, 0.4);
+        }
+
+        @@keyframes pulse {
+            0% {
+                transform: translate(-50%, -50%) scale(0.5);
+                opacity: 0.8;
+            }
+            70% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 0;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(0.5);
+                opacity: 0;
+            }
+        }
+
+        /* Stile per etichette distanza */
+        .distance-label {
+            background: transparent;
+            border: none;
+        }
+
+        .distance-label > div {
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 3px 8px;
+            border-radius: 15px;
+            font-size: 11px;
+            font-weight: bold;
+            color: #444;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        /* Stile per popup personalizzati */
+        .custom-popup .leaflet-popup-content-wrapper {
+            border-radius: 10px;
+            padding: 0;
+        }
+
+        .custom-popup .leaflet-popup-content {
+            margin: 0;
+            width: 280px !important;
+        }
+
+        .popup-content {
+            padding: 15px;
+        }
+
+        .popup-content h5 {
+            margin-bottom: 8px;
+            color: #3f51b5;
+        }
+
+        .popup-badge {
+            display: inline-block;
+            background-color: #eee;
+            color: #555;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
+
+        /* Formattazione contenuto generato */
+        .content-formatted p {
+            margin-bottom: 0.75rem;
+        }
+    </style>
+}

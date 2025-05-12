@@ -1,0 +1,1307 @@
+﻿@page "{id:int}"
+@model TravelGpt.Pages.Itinerary.EditModel
+@{
+    ViewData["Title"] = "Modifica Itinerario";
+}
+
+<style>
+    /* Variabili colori e stili condivisi */
+    :root {
+        --primary-color: #0e76bc;
+        --primary-light: rgba(14, 118, 188, 0.1);
+        --primary-hover: #0a5a91;
+        --primary-gradient: linear-gradient(135deg, #0e76bc, #3498db);
+        --secondary-color: #6c757d;
+        --success-color: #28a745;
+        --danger-color: #dc3545;
+        --warning-color: #ffc107;
+        --info-color: #17a2b8;
+        --light-color: #f8f9fa;
+        --dark-color: #2d3436;
+        --border-radius: 0.625rem;
+        --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        --transition: all 0.3s ease;
+    }
+
+    /* Stili pagina principale */
+    .edit-container {
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 2rem 0;
+    }
+
+    .edit-breadcrumb {
+        background: transparent;
+        padding: 0;
+        margin-bottom: 1.5rem;
+    }
+
+    .edit-breadcrumb .breadcrumb-item a {
+        color: var(--primary-color);
+        text-decoration: none;
+        font-weight: 500;
+        transition: var(--transition);
+    }
+
+    .edit-breadcrumb .breadcrumb-item a:hover {
+        color: var(--primary-hover);
+        text-decoration: underline;
+    }
+
+    .edit-breadcrumb .breadcrumb-item.active {
+        color: var(--secondary-color);
+    }
+
+    .edit-breadcrumb .breadcrumb-item+.breadcrumb-item::before {
+        content: "›";
+        color: var(--secondary-color);
+        font-size: 1.2rem;
+        line-height: 1;
+    }
+
+    /* Stile card principale */
+    .edit-card {
+        border: none;
+        border-radius: var(--border-radius);
+        box-shadow: var(--card-shadow);
+        margin-bottom: 2rem;
+        overflow: hidden;
+        background-color: #fff;
+    }
+
+    .edit-card-header {
+        background-color: #fff;
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .edit-card-title {
+        display: flex;
+        align-items: center;
+        font-weight: 600;
+        color: var(--dark-color);
+        margin: 0;
+    }
+
+    .edit-card-title i {
+        color: var(--primary-color);
+        margin-right: 0.75rem;
+        font-size: 1.2rem;
+    }
+
+    .edit-card-body {
+        padding: 1.5rem;
+    }
+
+    /* Stile form e input */
+    .form-label {
+        font-weight: 500;
+        color: var(--dark-color);
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+    }
+
+    .form-control, .form-select {
+        border-radius: 0.5rem;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        padding: 0.625rem 1rem;
+        font-size: 0.95rem;
+        transition: var(--transition);
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.25rem rgba(14, 118, 188, 0.15);
+    }
+
+    .form-check-input:checked {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+    
+    /* Stile per campi in sola lettura */
+    .form-control-readonly {
+        background-color: #f8f9fa;
+        border-color: #e9ecef;
+        color: var(--secondary-color);
+        cursor: not-allowed;
+    }
+    
+    .coordinates-container {
+        position: relative;
+        background-color: var(--primary-light);
+        border-radius: var(--border-radius);
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .coordinates-info {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+    
+    .coordinates-info i {
+        color: var(--primary-color);
+        margin-right: 0.5rem;
+        font-size: 1rem;
+    }
+    
+    .coordinates-title {
+        font-weight: 500;
+        font-size: 0.9rem;
+        color: var(--primary-color);
+        margin: 0;
+    }
+    
+    .coordinates-badge {
+        font-size: 0.85rem;
+        color: var(--dark-color);
+        padding: 0.3rem 0.6rem;
+        background-color: #ffffff;
+        border-radius: 4px;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        font-family: "Courier New", monospace;
+        width: 100%;
+        text-align: center;
+    }
+    
+    .coordinates-help {
+        color: var(--secondary-color);
+        font-size: 0.8rem;
+        margin-top: 0.5rem;
+    }
+
+    /* Hotel info box in sola lettura */
+    .hotel-info-box {
+        background-color: #f8f9fa;
+        border-radius: var(--border-radius);
+        padding: 1rem;
+        border: 1px solid #e9ecef;
+    }
+    
+    .hotel-price-badge {
+        display: inline-block;
+        font-weight: 600;
+        font-size: 1.1rem;
+        color: #2c3e50;
+        padding: 0.4rem 1rem;
+        background-color: #e9f7ef;
+        border-radius: 4px;
+        border: 1px solid #d5f5e3;
+    }
+    
+    .hotel-price-badge i {
+        color: #27ae60;
+        margin-right: 0.4rem;
+    }
+    
+    .hotel-name-display {
+        font-weight: 600;
+        font-size: 1.1rem;
+        color: var(--dark-color);
+        margin-bottom: 0.75rem;
+    }
+    
+    .hotel-description-display {
+        color: var(--secondary-color);
+        font-size: 0.9rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    /* Star Rating */
+    .star-rating-display {
+        display: flex;
+        align-items: center;
+        margin-top: 0.5rem;
+    }
+    
+    .star-rating-value {
+        font-weight: 600;
+        margin-right: 0.75rem;
+        font-size: 1.1rem;
+        color: var(--dark-color);
+        min-width: 1.5rem;
+    }
+    
+    .star-rating-stars {
+        display: inline-flex;
+    }
+    
+    .star-rating-stars i {
+        color: #ffc107;
+        font-size: 1.25rem;
+        margin-right: 0.2rem;
+    }
+    
+    .star-empty {
+        color: #e0e0e0 !important;
+    }
+
+    /* Stile per le tappe */
+    .stop-card {
+        border: none;
+        border-radius: var(--border-radius);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        margin-bottom: 1.5rem;
+        transition: var(--transition);
+        border-left: 4px solid var(--primary-color);
+    }
+
+    .stop-card:hover {
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        transform: translateY(-2px);
+    }
+
+    .stop-card-header {
+        background-color: rgba(248, 249, 250, 0.8);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .stop-title {
+        margin: 0;
+        font-weight: 600;
+        color: var(--dark-color);
+        font-size: 1rem;
+        display: flex;
+        align-items: center;
+    }
+
+    .stop-number {
+        background: var(--primary-gradient);
+        color: white;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 0.8rem;
+        margin-right: 0.75rem;
+    }
+
+    /* Bottoni di azione per le tappe */
+    .btn-action-group {
+        display: flex;
+    }
+
+    .btn-action {
+        border: none;
+        background: transparent;
+        width: 32px;
+        height: 32px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        margin-left: 0.25rem;
+        transition: var(--transition);
+        color: var(--secondary-color);
+    }
+
+    .btn-action:hover:not(:disabled) {
+        background-color: rgba(108, 117, 125, 0.1);
+    }
+
+    .btn-action:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+    }
+
+    .btn-action.btn-up:hover:not(:disabled), 
+    .btn-action.btn-down:hover:not(:disabled) {
+        color: var(--primary-color);
+    }
+
+    .btn-action.btn-delete:hover {
+        background-color: rgba(220, 53, 69, 0.1);
+        color: var(--danger-color);
+    }
+
+    /* Contenuti delle sezioni di una tappa */
+    .stop-section {
+        padding-top: 1.5rem;
+        margin-top: 1.5rem;
+        border-top: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .section-title {
+        display: flex;
+        align-items: center;
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 1.25rem;
+        color: var(--dark-color);
+    }
+
+    .section-title i {
+        color: var(--primary-color);
+        margin-right: 0.625rem;
+    }
+
+    /* Attività */
+    .activity-card {
+        border: none;
+        border-radius: 0.5rem;
+        box-shadow: 0 1px 5px rgba(0, 0, 0, 0.05);
+        margin-bottom: 0.75rem;
+        background-color: #f8f9fa;
+    }
+
+    .activity-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.75rem;
+    }
+
+    .activity-title {
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin: 0;
+        color: var(--secondary-color);
+    }
+
+    .btn-remove-activity {
+        border: none;
+        background: none;
+        color: var(--danger-color);
+        width: 24px;
+        height: 24px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        padding: 0;
+        font-size: 0.875rem;
+    }
+
+    .btn-remove-activity:hover {
+        background-color: rgba(220, 53, 69, 0.1);
+    }
+
+    /* Bottone aggiungi */
+    .btn-add {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #fff;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        color: var(--secondary-color);
+        border-radius: 0.5rem;
+        padding: 0.375rem 0.75rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        transition: var(--transition);
+    }
+
+    .btn-add:hover {
+        background-color: var(--light-color);
+        color: var(--dark-color);
+        border-color: rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-add i {
+        margin-right: 0.375rem;
+    }
+
+    .btn-add-stop {
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        background-color: #f1f9ff;
+        border: 1px dashed var(--primary-color);
+        color: var(--primary-color);
+        font-weight: 500;
+        transition: var(--transition);
+        margin-top: 0.5rem;
+        width: 100%;
+    }
+
+    .btn-add-stop:hover {
+        background-color: var(--primary-color);
+        color: white;
+    }
+
+    .btn-add-stop i {
+        margin-right: 0.375rem;
+    }
+
+    /* Form di contenuto generato */
+    .ai-content-section {
+        background-color: #f8f9fa;
+        border-radius: var(--border-radius);
+        padding: 1rem;
+        margin-top: 1.5rem;
+    }
+
+    .ai-content-label {
+        display: flex;
+        align-items: center;
+        font-weight: 500;
+        margin-bottom: 0.625rem;
+    }
+
+    .ai-content-label i {
+        color: var(--info-color);
+        margin-right: 0.375rem;
+    }
+
+    /* Bottoni finali */
+    .btn-action-main {
+        border-radius: 0.5rem;
+        padding: 0.5rem 1.25rem;
+        font-weight: 500;
+        transition: var(--transition);
+    }
+
+    .btn-primary {
+        background: var(--primary-gradient);
+        border: none;
+    }
+
+    .btn-primary:hover {
+        background: linear-gradient(135deg, var(--primary-hover), #2980b9);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(14, 118, 188, 0.25);
+    }
+
+    .btn-outline-secondary {
+        color: var(--secondary-color);
+        border-color: var(--secondary-color);
+    }
+
+    .btn-outline-secondary:hover {
+        background-color: var(--secondary-color);
+        color: white;
+    }
+
+    /* Etichette di validazione */
+    .text-danger {
+        font-size: 0.85rem;
+        margin-top: 0.25rem;
+    }
+
+    /* Animazioni */
+    @@keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .fade-in {
+        animation: fadeIn 0.3s ease-out forwards;
+    }
+
+    /* Responsive */
+    @@media (max-width: 767.98px) {
+        .stop-card-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .btn-action-group {
+            margin-top: 0.5rem;
+            width: 100%;
+            justify-content: space-between;
+        }
+        
+        .hotel-price-badge {
+            font-size: 0.95rem;
+            padding: 0.3rem 0.75rem;
+        }
+        
+        .star-rating-stars i {
+            font-size: 1rem;
+        }
+    }
+</style>
+
+<div class="container edit-container">
+    <div class="row justify-content-center">
+        <div class="col-lg-12">
+            <nav aria-label="breadcrumb" class="mb-4">
+                <ol class="breadcrumb edit-breadcrumb">
+                    <li class="breadcrumb-item"><a asp-page="./List">I miei itinerari</a></li>
+                    <li class="breadcrumb-item"><a asp-page="./Details" asp-route-id="@Model.TripPlan.Id">@Model.TripPlan.Title</a></li>
+                    <li class="breadcrumb-item active">Modifica</li>
+                </ol>
+            </nav>
+
+            <div class="edit-card">
+                <div class="edit-card-header">
+                    <h5 class="edit-card-title"><i class="fas fa-edit"></i>Modifica Itinerario</h5>
+                </div>
+                <div class="edit-card-body">
+                    <form method="post" id="editTripForm">
+                        <input type="hidden" asp-for="TripPlan.Id" />
+                        <input type="hidden" asp-for="TripPlan.UserId" />
+                        <input type="hidden" asp-for="TripPlan.CreatedAt" />
+
+                        <div class="row mb-4">
+                            <div class="col-md-12">
+                                <label asp-for="TripPlan.Title" class="form-label">Titolo dell'itinerario</label>
+                                <input asp-for="TripPlan.Title" class="form-control" required placeholder="Inserisci un titolo descrittivo" />
+                                <span asp-validation-for="TripPlan.Title" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-12">
+                                <label asp-for="TripPlan.Description" class="form-label">Descrizione</label>
+                                <textarea asp-for="TripPlan.Description" class="form-control" rows="3" placeholder="Descrivi brevemente questo itinerario..."></textarea>
+                                <span asp-validation-for="TripPlan.Description" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label asp-for="TripPlan.StartDate" class="form-label">Data inizio</label>
+                                <input type="date" asp-for="TripPlan.StartDate" class="form-control" required />
+                                <span asp-validation-for="TripPlan.StartDate" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="TripPlan.EndDate" class="form-label">Data fine</label>
+                                <input type="date" asp-for="TripPlan.EndDate" class="form-control" required />
+                                <span asp-validation-for="TripPlan.EndDate" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-check mb-4">
+                            <input asp-for="TripPlan.IsPublic" class="form-check-input" type="checkbox" />
+                            <label asp-for="TripPlan.IsPublic" class="form-check-label">
+                                Rendi questo itinerario visibile pubblicamente
+                                <small class="d-block text-muted mt-1">Gli itinerari pubblici possono essere visualizzati da tutti gli utenti di TravelGpt</small>
+                            </label>
+                        </div>
+
+                        <div class="mb-5">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <label class="form-label m-0">Tappe dell'itinerario</label>
+                                <span class="badge bg-primary rounded-pill">@Model.TripStops.Count tappe</span>
+                            </div>
+
+                            <div id="stopsContainer">
+                                @for (int i = 0; i < Model.TripStops.Count; i++)
+                                {
+                                    <div class="stop-card fade-in" style="animation-delay: @(i * 0.05)s">
+                                        <div class="stop-card-header">
+                                            <h6 class="stop-title">
+                                                <span class="stop-number">@(i + 1)</span>
+                                                Tappa @(i + 1)
+                                            </h6>
+                                            <div class="btn-action-group">
+                                                <button type="button" class="btn-action btn-up move-stop-up" @(i == 0 ? "disabled" : "")>
+                                                    <i class="fas fa-arrow-up"></i>
+                                                </button>
+                                                <button type="button" class="btn-action btn-down move-stop-down" @(i == Model.TripStops.Count - 1 ? "disabled" : "")>
+                                                    <i class="fas fa-arrow-down"></i>
+                                                </button>
+                                                <button type="button" class="btn-action btn-delete remove-stop">
+                                                    <i class="fas fa-trash-alt"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="card-body">
+                                            <input type="hidden" name="TripStops[@i].Id" value="@Model.TripStops[i].Id" />
+                                            <input type="hidden" name="TripStops[@i].TripPlanId" value="@Model.TripStops[i].TripPlanId" />
+                                            <input type="hidden" name="TripStops[@i].Order" value="@i" class="stop-order" />
+
+                                            <div class="row mb-3">
+                                                <div class="col-md-6">
+                                                    <label class="form-label">Città</label>
+                                                    <input type="text" name="TripStops[@i].CityName" class="form-control" value="@Model.TripStops[i].CityName" required />
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label">Paese</label>
+                                                    <input type="text" name="TripStops[@i].Country" class="form-control" value="@Model.TripStops[i].Country" required />
+                                                </div>
+                                            </div>
+
+                                            <div class="row mb-3">
+                                                <div class="col-md-8">
+                                                    <label class="form-label">Descrizione</label>
+                                                    <input type="text" name="TripStops[@i].Description" class="form-control" value="@Model.TripStops[i].Description" placeholder="Descrivi brevemente questa tappa" />
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <label class="form-label">Giorni di permanenza</label>
+                                                    <input type="number" name="TripStops[@i].Days" class="form-control" value="@Model.TripStops[i].Days" min="1" required />
+                                                </div>
+                                            </div>
+
+                                            <!-- Sezione coordinate in sola lettura -->
+                                            <div class="coordinates-container">
+                                                <div class="coordinates-info">
+                                                    <i class="fas fa-map-marker-alt"></i>
+                                                    <h6 class="coordinates-title">Coordinate geografiche</h6>
+                                                </div>
+                                                <div class="row g-2">
+                                                    <div class="col-md-6">
+                                                        <div class="coordinates-badge">
+                                                            Lat: @Model.TripStops[i].Latitude
+                                                        </div>
+                                                        <input type="hidden" name="TripStops[@i].Latitude" value="@Model.TripStops[i].Latitude" />
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="coordinates-badge">
+                                                            Long: @Model.TripStops[i].Longitude
+                                                        </div>
+                                                        <input type="hidden" name="TripStops[@i].Longitude" value="@Model.TripStops[i].Longitude" />
+                                                    </div>
+                                                </div>
+                                                <p class="coordinates-help">
+                                                    <i class="fas fa-info-circle me-1"></i>
+                                                    Coordinate generate automaticamente in base alla città selezionata.
+                                                </p>
+                                            </div>
+
+                                            @if (Model.TripStops[i].Hotel != null)
+                                            {
+                                                <div class="stop-section">
+                                                    <h6 class="section-title"><i class="fas fa-bed"></i>Alloggio</h6>
+                                                    <input type="hidden" name="TripStops[@i].Hotel.Id" value="@Model.TripStops[i].Hotel.Id" />
+                                                    <input type="hidden" name="TripStops[@i].Hotel.TripStopId" value="@Model.TripStops[i].Hotel.TripStopId" />
+                                                    <input type="hidden" name="TripStops[@i].Hotel.PricePerNight" value="@Model.TripStops[i].Hotel.PricePerNight" />
+                                                    <input type="hidden" name="TripStops[@i].Hotel.Rating" value="@Model.TripStops[i].Hotel.Rating" />
+
+                                                    <div class="hotel-info-box mb-3">
+                                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                                            <input type="text" name="TripStops[@i].Hotel.Name" class="form-control hotel-name-display" value="@Model.TripStops[i].Hotel.Name" required />
+                                                            <div class="hotel-price-badge">
+                                                                <i class="fas fa-euro-sign"></i>@Model.TripStops[i].Hotel.PricePerNight.ToString("0.00")/notte
+                                                            </div>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <input type="text" name="TripStops[@i].Hotel.Description" class="form-control hotel-description-display" value="@Model.TripStops[i].Hotel.Description" placeholder="Descrivi brevemente l'hotel" />
+                                                        </div>
+                                                        <div class="star-rating-display">
+                                                            <span class="star-rating-value">@Model.TripStops[i].Hotel.Rating</span>
+                                                            <div class="star-rating-stars">
+                                                                @{
+                                                                    int fullStars = (int)Math.Floor(Model.TripStops[i].Hotel.Rating);
+                                                                    bool hasHalfStar = Model.TripStops[i].Hotel.Rating - fullStars >= 0.5;
+                                                                    int emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+                                                                    
+                                                                    for (int s = 0; s < fullStars; s++)
+                                                                    {
+                                                                        <i class="fas fa-star"></i>
+                                                                    }
+                                                                    
+                                                                    if (hasHalfStar)
+                                                                    {
+                                                                        <i class="fas fa-star-half-alt"></i>
+                                                                    }
+                                                                    
+                                                                    for (int s = 0; s < emptyStars; s++)
+                                                                    {
+                                                                        <i class="far fa-star star-empty"></i>
+                                                                    }
+                                                                }
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            }
+
+                                            @if (Model.TripStops[i].Activities.Any())
+                                            {
+                                                <div class="stop-section">
+                                                    <h6 class="section-title">
+                                                        <i class="fas fa-hiking"></i>Attività 
+                                                        <span class="badge bg-secondary rounded-pill ms-2">@Model.TripStops[i].Activities.Count</span>
+                                                    </h6>
+
+                                                    <div class="activities-container">
+                                                        @{
+                                                            int j = 0;
+                                                            foreach (var activity in Model.TripStops[i].Activities)
+                                                            {
+                                                                <div class="activity-card">
+                                                                    <div class="card-body py-2 px-3">
+                                                                        <div class="activity-header">
+                                                                            <h6 class="activity-title">Attività @(j + 1)</h6>
+                                                                            <button type="button" class="btn-remove-activity remove-activity">
+                                                                                <i class="fas fa-times"></i>
+                                                                            </button>
+                                                                        </div>
+
+                                                                        <input type="hidden" name="TripStops[@i].Activities[@j].Id" value="@activity.Id" />
+                                                                        <input type="hidden" name="TripStops[@i].Activities[@j].TripStopId" value="@activity.TripStopId" />
+
+                                                                        <div class="row g-2">
+                                                                            <div class="col-md-6">
+                                                                                <input type="text" name="TripStops[@i].Activities[@j].Name"
+                                                                           class="form-control form-control-sm" placeholder="Nome attività"
+                                                                           value="@activity.Name" required />
+                                                                            </div>
+                                                                            <div class="col-md-6">
+                                                                                <div class="input-group input-group-sm">
+                                                                                    <span class="input-group-text">€</span>
+                                                                                    <input type="number" step="0.01" min="0"
+                                                                               name="TripStops[@i].Activities[@j].Price"
+                                                                               class="form-control" placeholder="Prezzo"
+                                                                               value="@activity.Price" required />
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="col-12">
+                                                                                <input type="text" name="TripStops[@i].Activities[@j].Description"
+                                                                           class="form-control form-control-sm" placeholder="Descrizione"
+                                                                           value="@activity.Description" />
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                j++;
+                                                            }
+                                                        }
+                                                    </div>
+                                                    <button type="button" class="btn btn-add mt-2 add-activity" data-stop-index="@i">
+                                                        <i class="fas fa-plus"></i> Aggiungi attività
+                                                    </button>
+                                                </div>
+                                            }
+                                            else 
+                                            {
+                                                <div class="stop-section">
+                                                    <h6 class="section-title"><i class="fas fa-hiking"></i>Attività</h6>
+                                                    <div class="activities-container"></div>
+                                                    <button type="button" class="btn btn-add mt-2 add-activity" data-stop-index="@i">
+                                                        <i class="fas fa-plus"></i> Aggiungi attività
+                                                    </button>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+
+                            <button type="button" class="btn btn-add-stop" id="addStopBtn">
+                                <i class="fas fa-plus-circle"></i>Aggiungi nuova tappa
+                            </button>
+                        </div>
+
+                        <div class="ai-content-section">
+                            <label asp-for="TripPlan.GeneratedContent" class="ai-content-label form-label">
+                                <i class="fas fa-robot"></i> Contenuto generato dall'AI
+                            </label>
+                            <textarea asp-for="TripPlan.GeneratedContent" class="form-control" rows="8" 
+                                      placeholder="Il contenuto generato dall'AI verrà aggiornato automaticamente al salvataggio..."></textarea>
+                            <div class="form-text mt-2">
+                                <i class="fas fa-info-circle me-1"></i> 
+                                Questo contenuto viene generato automaticamente in base alle informazioni sull'itinerario. 
+                                Puoi modificarlo manualmente per personalizzarlo ulteriormente.
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end mt-4">
+                            <a asp-page="./Details" asp-route-id="@Model.TripPlan.Id" class="btn btn-outline-secondary btn-action-main me-2">
+                                <i class="fas fa-times me-1"></i> Annulla
+                            </a>
+                            <button type="submit" class="btn btn-primary btn-action-main">
+                                <i class="fas fa-save me-1"></i> Salva modifiche
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Gestione riordinamento e rimozione tappe
+            $('#stopsContainer').on('click', '.move-stop-up', function () {
+                const stopCard = $(this).closest('.stop-card');
+                stopCard.insertBefore(stopCard.prev('.stop-card'));
+                updateStopOrder();
+            });
+
+            $('#stopsContainer').on('click', '.move-stop-down', function () {
+                const stopCard = $(this).closest('.stop-card');
+                stopCard.insertAfter(stopCard.next('.stop-card'));
+                updateStopOrder();
+            });
+
+            $('#stopsContainer').on('click', '.remove-stop', function () {
+                if ($('.stop-card').length > 1) {
+                    Swal.fire({
+                        title: 'Sei sicuro?',
+                        text: 'Vuoi rimuovere questa tappa dall\'itinerario?',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#dc3545',
+                        cancelButtonColor: '#6c757d',
+                        confirmButtonText: 'Sì, rimuovi',
+                        cancelButtonText: 'Annulla'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            $(this).closest('.stop-card').fadeOut(300, function() {
+                                $(this).remove();
+                                updateStopOrder();
+                            });
+                        }
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'Attenzione',
+                        text: 'Deve rimanere almeno una tappa nell\'itinerario.',
+                        icon: 'info',
+                        confirmButtonColor: '#0e76bc'
+                    });
+                }
+            });
+
+            // Aggiungi nuova tappa
+            $('#addStopBtn').click(function () {
+                const newIndex = $('.stop-card').length;
+                
+                // Mostra un modal per inserire città e paese prima di aggiungere la tappa
+                Swal.fire({
+                    title: 'Aggiungi nuova tappa',
+                    html: `
+                        <div class="mb-3">
+                            <label class="swal2-label">Città</label>
+                            <input id="swal-city" class="swal2-input" placeholder="Inserisci la città">
+                        </div>
+                        <div class="mb-3">
+                            <label class="swal2-label">Paese</label>
+                            <input id="swal-country" class="swal2-input" placeholder="Inserisci il paese">
+                        </div>
+                    `,
+                    showCancelButton: true,
+                    confirmButtonText: 'Aggiungi',
+                    cancelButtonText: 'Annulla',
+                    showLoaderOnConfirm: true,
+                    preConfirm: () => {
+                        const city = document.getElementById('swal-city').value;
+                        const country = document.getElementById('swal-country').value;
+                        
+                        if (!city || !country) {
+                            Swal.showValidationMessage('Città e paese sono obbligatori');
+                            return false;
+                        }
+                        
+                        return { city, country };
+                    },
+                    allowOutsideClick: () => !Swal.isLoading()
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        const { city, country } = result.value;
+                        
+                        // Simula il recupero delle coordinate e informazioni hotel per la città e il paese
+                        const fakeCoordinates = getFakeCoordinates(city, country);
+                        const fakeHotelInfo = getRandomHotelInfo(city);
+                        
+                        addNewStop(newIndex, city, country, fakeCoordinates.lat, fakeCoordinates.lng, fakeHotelInfo);
+                    }
+                });
+            });
+            
+            // Funzione per generare coordinate fittizie basate su città e paese
+            function getFakeCoordinates(city, country) {
+                // Genera coordinate pseudocasuali ma deterministiche basate sul nome della città
+                const cityHash = hashString(city + country);
+                
+                // Latitudine tra -90 e 90
+                const lat = ((cityHash % 180) - 90).toFixed(6);
+                
+                // Longitudine tra -180 e 180
+                const lng = ((cityHash * 13 % 360) - 180).toFixed(6);
+                
+                return { lat, lng };
+            }
+            
+            // Funzione per generare informazioni su hotel casuali ma realistiche
+            function getRandomHotelInfo(city) {
+                const hotelNamePrefixes = ["Grand Hotel", "Hotel", "Palazzo", "Residence", "Suite"];
+                const hotelNameSuffixes = ["Centrale", "Royal", "Palace", "Imperial", "Continental", "Luxe", "Stella", "Belvedere", "Panorama", "Plaza"];
+                
+                // Genera un nome pseudocasuale ma deterministico basato sulla città
+                const cityHash = hashString(city);
+                const prefixIndex = cityHash % hotelNamePrefixes.length;
+                const suffixIndex = (cityHash * 13) % hotelNameSuffixes.length;
+                
+                const hotelName = `${hotelNamePrefixes[prefixIndex]} ${hotelNameSuffixes[suffixIndex]} ${city}`;
+                
+                // Genera un prezzo pseudocasuale ma realistico (75-350€)
+                const basePrice = 75 + (cityHash % 275);
+                const price = basePrice.toFixed(2);
+                
+                // Genera una valutazione pseudocasuale ma realistica (3.2-4.9)
+                const rating = (3.2 + (cityHash % 17) / 10).toFixed(1);
+                
+                // Descrizioni realistiche
+                const descriptions = [
+                    `Situato nel centro di ${city}, offre comfort moderni e servizio eccellente.`,
+                    `Una struttura elegante con camere spaziose e vista sulla città di ${city}.`,
+                    `Un hotel di design che combina tradizione e modernità nel cuore di ${city}.`,
+                    `L'hotel offre un'esperienza di soggiorno lussuosa con servizi di prima classe.`,
+                    `Accogliente struttura a pochi passi dalle principali attrazioni di ${city}.`
+                ];
+                
+                const descriptionIndex = cityHash % descriptions.length;
+                
+                return {
+                    name: hotelName,
+                    price: price,
+                    rating: rating,
+                    description: descriptions[descriptionIndex]
+                };
+            }
+            
+            // Funzione per generare un valore hash da una stringa
+            function hashString(str) {
+                let hash = 0;
+                for (let i = 0; i < str.length; i++) {
+                    hash = ((hash << 5) - hash) + str.charCodeAt(i);
+                    hash = hash & hash; // Converti a 32bit integer
+                }
+                return Math.abs(hash);
+            }
+            
+            // Funzione per renderizzare le stelle in base a una valutazione
+            function renderStarRating(rating) {
+                const fullStars = Math.floor(rating);
+                const hasHalfStar = rating - fullStars >= 0.5;
+                const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+                
+                let starsHtml = '';
+                
+                // Stelle piene
+                for (let i = 0; i < fullStars; i++) {
+                    starsHtml += '<i class="fas fa-star"></i>';
+                }
+                
+                // Mezza stella (se applicabile)
+                if (hasHalfStar) {
+                    starsHtml += '<i class="fas fa-star-half-alt"></i>';
+                }
+                
+                // Stelle vuote
+                for (let i = 0; i < emptyStars; i++) {
+                    starsHtml += '<i class="far fa-star star-empty"></i>';
+                }
+                
+                return starsHtml;
+            }
+            
+            // Funzione per aggiungere una nuova tappa con le coordinate e info hotel preimpostate
+            function addNewStop(newIndex, city, country, latitude, longitude, hotelInfo) {
+                const stopTemplate = `
+                    <div class="stop-card fade-in">
+                        <div class="stop-card-header">
+                            <h6 class="stop-title">
+                                <span class="stop-number">${newIndex + 1}</span>
+                                Tappa ${newIndex + 1}
+                            </h6>
+                            <div class="btn-action-group">
+                                <button type="button" class="btn-action btn-up move-stop-up" ${newIndex === 0 ? 'disabled' : ''}>
+                                    <i class="fas fa-arrow-up"></i>
+                                </button>
+                                <button type="button" class="btn-action btn-down move-stop-down" disabled>
+                                    <i class="fas fa-arrow-down"></i>
+                                </button>
+                                <button type="button" class="btn-action btn-delete remove-stop">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <input type="hidden" name="TripStops[${newIndex}].Id" value="0" />
+                            <input type="hidden" name="TripStops[${newIndex}].TripPlanId" value="${$('input[name="TripPlan.Id"]').val()}" />
+                            <input type="hidden" name="TripStops[${newIndex}].Order" value="${newIndex}" class="stop-order" />
+
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Città</label>
+                                    <input type="text" name="TripStops[${newIndex}].CityName" class="form-control" value="${city}" required />
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Paese</label>
+                                    <input type="text" name="TripStops[${newIndex}].Country" class="form-control" value="${country}" required />
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-8">
+                                    <label class="form-label">Descrizione</label>
+                                    <input type="text" name="TripStops[${newIndex}].Description" class="form-control" placeholder="Descrivi brevemente questa tappa" />
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Giorni di permanenza</label>
+                                    <input type="number" name="TripStops[${newIndex}].Days" class="form-control" value="1" min="1" required />
+                                </div>
+                            </div>
+
+                            <!-- Sezione coordinate in sola lettura -->
+                            <div class="coordinates-container">
+                                <div class="coordinates-info">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <h6 class="coordinates-title">Coordinate geografiche</h6>
+                                </div>
+                                <div class="row g-2">
+                                    <div class="col-md-6">
+                                        <div class="coordinates-badge">
+                                            Lat: ${latitude}
+                                        </div>
+                                        <input type="hidden" name="TripStops[${newIndex}].Latitude" value="${latitude}" />
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="coordinates-badge">
+                                            Long: ${longitude}
+                                        </div>
+                                        <input type="hidden" name="TripStops[${newIndex}].Longitude" value="${longitude}" />
+                                    </div>
+                                </div>
+                                <p class="coordinates-help">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Coordinate generate automaticamente in base alla città selezionata.
+                                </p>
+                            </div>
+
+                            <div class="stop-section">
+                                <h6 class="section-title"><i class="fas fa-bed"></i>Alloggio</h6>
+                                <input type="hidden" name="TripStops[${newIndex}].Hotel.Id" value="0" />
+                                <input type="hidden" name="TripStops[${newIndex}].Hotel.TripStopId" value="0" />
+                                <input type="hidden" name="TripStops[${newIndex}].Hotel.PricePerNight" value="${hotelInfo.price}" />
+                                <input type="hidden" name="TripStops[${newIndex}].Hotel.Rating" value="${hotelInfo.rating}" />
+
+                                <div class="hotel-info-box mb-3">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <input type="text" name="TripStops[${newIndex}].Hotel.Name" class="form-control hotel-name-display" value="${hotelInfo.name}" required />
+                                        <div class="hotel-price-badge">
+                                            <i class="fas fa-euro-sign"></i>${hotelInfo.price}/notte
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <input type="text" name="TripStops[${newIndex}].Hotel.Description" class="form-control hotel-description-display" value="${hotelInfo.description}" placeholder="Descrivi brevemente l'hotel" />
+                                    </div>
+                                    <div class="star-rating-display">
+                                        <span class="star-rating-value">${hotelInfo.rating}</span>
+                                        <div class="star-rating-stars">
+                                            ${renderStarRating(hotelInfo.rating)}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="stop-section">
+                                <h6 class="section-title"><i class="fas fa-hiking"></i>Attività</h6>
+                                <div class="activities-container"></div>
+                                <button type="button" class="btn btn-add mt-2 add-activity" data-stop-index="${newIndex}">
+                                    <i class="fas fa-plus"></i> Aggiungi attività
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                $('#stopsContainer').append(stopTemplate);
+                
+                // Notifica l'utente che le coordinate e info hotel sono state generate
+                toastr.success(`"${hotelInfo.name}" selezionato per ${city}`, 'Hotel trovato');
+                toastr.info(`Coordinate generate per ${city}, ${country}`, 'Informazione');
+
+                // Aggiorna i pulsanti up/down
+                updateMoveButtons();
+            }
+
+            // Gestione attività
+            $(document).on('click', '.add-activity', function () {
+                const stopIndex = $(this).data('stop-index');
+                const activitiesContainer = $(this).prev('.activities-container');
+                const activityIndex = activitiesContainer.children('.activity-card').length;
+
+                const activityTemplate = `
+                    <div class="activity-card fade-in">
+                        <div class="card-body py-2 px-3">
+                            <div class="activity-header">
+                                <h6 class="activity-title">Attività ${activityIndex + 1}</h6>
+                                <button type="button" class="btn-remove-activity remove-activity">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+
+                            <input type="hidden" name="TripStops[${stopIndex}].Activities[${activityIndex}].Id" value="0" />
+                            <input type="hidden" name="TripStops[${stopIndex}].Activities[${activityIndex}].TripStopId" value="0" />
+
+                            <div class="row g-2">
+                                <div class="col-md-6">
+                                    <input type="text" name="TripStops[${stopIndex}].Activities[${activityIndex}].Name"
+                                           class="form-control form-control-sm" placeholder="Nome attività" required />
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="input-group input-group-sm">
+                                        <span class="input-group-text">€</span>
+                                        <input type="number" step="0.01" min="0"
+                                               name="TripStops[${stopIndex}].Activities[${activityIndex}].Price"
+                                               class="form-control" placeholder="Prezzo" value="0" required />
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <input type="text" name="TripStops[${stopIndex}].Activities[${activityIndex}].Description"
+                                           class="form-control form-control-sm" placeholder="Descrizione" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                activitiesContainer.append(activityTemplate);
+                
+                // Aggiorna il badge del numero di attività
+                const activityCount = activitiesContainer.children('.activity-card').length;
+                const sectionTitle = $(this).parent().find('.section-title');
+                
+                if (sectionTitle.find('.badge').length) {
+                    sectionTitle.find('.badge').text(activityCount);
+                } else {
+                    sectionTitle.append(`<span class="badge bg-secondary rounded-pill ms-2">${activityCount}</span>`);
+                }
+            });
+
+            $(document).on('click', '.remove-activity', function () {
+                const activityCard = $(this).closest('.activity-card');
+                const activitiesContainer = activityCard.parent('.activities-container');
+                
+                activityCard.fadeOut(200, function() {
+                    $(this).remove();
+                    
+                    // Aggiorna il badge del numero di attività
+                    const activityCount = activitiesContainer.children('.activity-card').length;
+                    const sectionTitle = activitiesContainer.parent().find('.section-title');
+                    
+                    if (sectionTitle.find('.badge').length) {
+                        if (activityCount > 0) {
+                            sectionTitle.find('.badge').text(activityCount);
+                        } else {
+                            sectionTitle.find('.badge').remove();
+                        }
+                    }
+                });
+            });
+
+            // Funzioni di supporto
+            function updateStopOrder() {
+                $('.stop-card').each(function (index) {
+                    // Aggiorna il numero della tappa nella UI
+                    $(this).find('.stop-number').text(index + 1);
+                    $(this).find('.stop-title').contents().filter(function() {
+                        return this.nodeType === 3; // Nodo di testo
+                    }).replaceWith(` Tappa ${index + 1}`);
+                    
+                    $(this).find('.stop-order').val(index);
+
+                    // Aggiorna i nomi dei campi per mantenere gli indici corretti
+                    updateFieldNames($(this), index);
+                });
+
+                // Aggiorna il badge del conteggio tappe
+                $('.badge.bg-primary').text($('.stop-card').length + ' tappe');
+                
+                updateMoveButtons();
+            }
+
+            function updateMoveButtons() {
+                $('.stop-card').each(function (index) {
+                    const isFirst = index === 0;
+                    const isLast = index === $('.stop-card').length - 1;
+
+                    $(this).find('.move-stop-up').prop('disabled', isFirst);
+                    $(this).find('.move-stop-down').prop('disabled', isLast);
+                });
+            }
+
+            function updateFieldNames(stopCard, newIndex) {
+                // Aggiorna i nomi dei campi della tappa
+                stopCard.find('input, textarea, select').each(function () {
+                    const name = $(this).attr('name');
+                    if (name && name.includes('TripStops[')) {
+                        const newName = name.replace(/TripStops\[\d+\]/, `TripStops[${newIndex}]`);
+                        $(this).attr('name', newName);
+                    }
+                });
+
+                // Aggiorna data-stop-index per i pulsanti di aggiunta attività
+                stopCard.find('.add-activity').attr('data-stop-index', newIndex);
+            }
+
+            // Form validation interattiva
+            $('#editTripForm').on('submit', function(e) {
+                const startDate = new Date($('#TripPlan_StartDate').val());
+                const endDate = new Date($('#TripPlan_EndDate').val());
+                
+                if (endDate < startDate) {
+                    e.preventDefault();
+                    Swal.fire({
+                        title: 'Data non valida',
+                        text: 'La data di fine deve essere successiva alla data di inizio.',
+                        icon: 'error',
+                        confirmButtonColor: '#0e76bc'
+                    });
+                    return false;
+                }
+                
+                // Verifica che tutte le tappe abbiano un nome di città
+                let isValid = true;
+                $('.stop-card').each(function(index) {
+                    const cityName = $(this).find('input[name^="TripStops["][name$="].CityName"]').val();
+                    if (!cityName) {
+                        isValid = false;
+                        e.preventDefault();
+                        $(this).find('input[name^="TripStops["][name$="].CityName"]').addClass('is-invalid').focus();
+                        
+                        Swal.fire({
+                            title: 'Campo mancante',
+                            text: `Inserisci il nome della città per la tappa ${index + 1}`,
+                            icon: 'error',
+                            confirmButtonColor: '#0e76bc'
+                        });
+                        return false;
+                    }
+                });
+                
+                if (!isValid) return false;
+                
+                // Se tutto è valido, mostra un indicatore di caricamento
+                if (isValid) {
+                    const submitBtn = $(this).find('button[type="submit"]');
+                    submitBtn.prop('disabled', true);
+                    submitBtn.html('<i class="fas fa-spinner fa-spin me-1"></i> Salvataggio...');
+                }
+            });
+            
+            // Effetti visivi aggiuntivi
+            $('.form-control, .form-select').on('focus', function() {
+                $(this).closest('.mb-3').find('.form-label').addClass('text-primary');
+            }).on('blur', function() {
+                $(this).closest('.mb-3').find('.form-label').removeClass('text-primary');
+            });
+            
+            // Data attuale sotto forma di timestamp - 12/05/2025
+            const currentDate = "2025-05-12";
+            console.log("Data di aggiornamento: " + currentDate);
+        });
+    </script>
+    
+    <!-- SweetAlert2 per dialog modali più belle -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <!-- Toastr per notifiche -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    
+    <script>
+        // Configurazione Toastr
+        toastr.options = {
+            "closeButton": true,
+            "progressBar": true,
+            "positionClass": "toast-bottom-right",
+            "timeOut": "3000"
+        };
+    </script>
+}

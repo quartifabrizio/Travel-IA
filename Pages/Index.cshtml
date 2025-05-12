@@ -1,0 +1,763 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home";
+}
+
+<!-- Hero Section with Video Background -->
+<div class="hero position-relative overflow-hidden text-white">
+    <div class="overlay"></div>
+    <video autoplay muted loop playsinline class="hero-video">
+        <source src="https://assets.mixkit.co/videos/preview/mixkit-traveling-through-a-city-1618-large.mp4" type="video/mp4">
+    </video>
+    <div class="container position-relative h-100 d-flex align-items-center">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold mb-3 animate__animated animate__fadeInUp">Pianifica viaggi incredibili con l'IA</h1>
+                <p class="lead mb-4 animate__animated animate__fadeInUp animate__delay-1s">TravelGpt utilizza l'intelligenza artificiale per aiutarti a creare itinerari personalizzati, trovare luoghi interessanti e gestire le tue spese di viaggio.</p>
+                <div class="animate__animated animate__fadeInUp animate__delay-2s">
+                    <a asp-page="/Dashboard" class="btn btn-primary btn-lg me-2 pulse-btn">Inizia a pianificare</a>
+                    <a href="#features" class="btn btn-outline-light btn-lg">Scopri di più</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="scroll-indicator">
+        <a href="#features">
+            <i class="fas fa-chevron-down"></i>
+        </a>
+    </div>
+</div>
+
+<!-- Features Section -->
+<section id="features" class="py-5">
+    <div class="container">
+        <div class="text-center mb-5 reveal">
+            <span class="badge bg-primary px-3 py-2 mb-3 rounded-pill">FUNZIONALITÀ</span>
+            <h2 class="display-5 fw-bold">Pianifica il tuo viaggio perfetto</h2>
+            <p class="lead text-muted mx-auto" style="max-width: 700px;">Scopri le funzionalità che rendono TravelGpt l'assistente di viaggio ideale per le tue avventure</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-4 reveal">
+                <div class="card h-100 border-0 shadow-sm hover-card">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-image mb-3">
+                            <img src="https://images.unsplash.com/photo-1569336415962-a4bd9f69cd83?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80" alt="Mappa interattiva">
+                        </div>
+                        <h4 class="card-title">Mappa interattiva</h4>
+                        <p class="card-text text-muted">Cerca e scopri facilmente destinazioni in tutto il mondo con la nostra mappa interattiva, ottenendo informazioni dettagliate su ogni luogo.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 reveal" data-delay="100">
+                <div class="card h-100 border-0 shadow-sm hover-card">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-image mb-3">
+                            <img src="https://images.unsplash.com/photo-1535378917042-10a22c95931a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80" alt="Intelligenza artificiale">
+                        </div>
+                        <h4 class="card-title">Suggerimenti IA</h4>
+                        <p class="card-text text-muted">L'intelligenza artificiale di Google Gemini analizza migliaia di dati per suggerirti hotel, attrazioni e attività personalizzate.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 reveal" data-delay="200">
+                <div class="card h-100 border-0 shadow-sm hover-card">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-image mb-3">
+                            <img src="https://images.unsplash.com/photo-1566830893465-695b859953ce?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80" alt="Itinerario di viaggio">
+                        </div>
+                        <h4 class="card-title">Itinerari multi-tappa</h4>
+                        <p class="card-text text-muted">Crea facilmente itinerari complessi con più destinazioni, calcolando automaticamente distanze e tempi di percorrenza.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 reveal">
+                <div class="card h-100 border-0 shadow-sm hover-card">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-image mb-3">
+                            <img src="https://images.unsplash.com/photo-1554224155-8d04cb21ed6c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80" alt="Budget di viaggio">
+                        </div>
+                        <h4 class="card-title">Gestione budget</h4>
+                        <p class="card-text text-muted">Monitora e gestisci facilmente tutte le spese del viaggio, suddivise per categoria e partecipante.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 reveal" data-delay="100">
+                <div class="card h-100 border-0 shadow-sm hover-card">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-image mb-3">
+                            <img src="https://images.unsplash.com/photo-1506784983877-45594efa4cbe?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80" alt="Pianificazione giornaliera">
+                        </div>
+                        <h4 class="card-title">Pianificazione giornaliera</h4>
+                        <p class="card-text text-muted">Genera automaticamente un programma dettagliato giorno per giorno con suggerimenti personalizzati per ogni destinazione.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 reveal" data-delay="200">
+                <div class="card h-100 border-0 shadow-sm hover-card">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-image mb-3">
+                            <img src="https://images.unsplash.com/photo-1521791136064-7986c2920216?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80" alt="Condivisione viaggi">
+                        </div>
+                        <h4 class="card-title">Condivisione</h4>
+                        <p class="card-text text-muted">Condividi facilmente i tuoi itinerari con amici e familiari o scopri viaggi pubblici di altri utenti.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- How it Works Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="text-center mb-5 reveal">
+            <span class="badge bg-primary px-3 py-2 mb-3 rounded-pill">COME FUNZIONA</span>
+            <h2 class="display-5 fw-bold">Tre semplici passi per il tuo viaggio</h2>
+            <p class="lead text-muted mx-auto" style="max-width: 700px;">Pianificare il tuo prossimo viaggio è incredibilmente semplice con TravelGpt</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-4 reveal">
+                <div class="card bg-white border-0 shadow-sm h-100 hover-card">
+                    <div class="position-relative">
+                        <img src="https://images.unsplash.com/photo-1488646953014-85cb44e25828?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=500&q=80" class="card-img-top" alt="Step 1: Search Destination">
+                        <div class="step-badge">1</div>
+                    </div>
+                    <div class="card-body p-4">
+                        <h4 class="card-title">Cerca una destinazione</h4>
+                        <p class="card-text text-muted">Utilizza la nostra mappa interattiva per cercare e esplorare destinazioni in tutto il mondo.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 reveal" data-delay="100">
+                <div class="card bg-white border-0 shadow-sm h-100 hover-card">
+                    <div class="position-relative">
+                        <img src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=500&q=80" class="card-img-top" alt="Step 2: Create Itinerary">
+                        <div class="step-badge">2</div>
+                    </div>
+                    <div class="card-body p-4">
+                        <h4 class="card-title">Crea il tuo itinerario</h4>
+                        <p class="card-text text-muted">Seleziona hotel e attività suggerite dall'IA e aggiungi le tappe al tuo itinerario personalizzato.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 reveal" data-delay="200">
+                <div class="card bg-white border-0 shadow-sm h-100 hover-card">
+                    <div class="position-relative">
+                        <img src="https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=500&q=80" class="card-img-top" alt="Step 3: Manage Trip">
+                        <div class="step-badge">3</div>
+                    </div>
+                    <div class="card-body p-4">
+                        <h4 class="card-title">Gestisci il tuo viaggio</h4>
+                        <p class="card-text text-muted">Visualizza il tuo itinerario completo, gestisci le spese e condividilo con gli altri partecipanti.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-5 reveal">
+            <a asp-page="/Dashboard" class="btn btn-primary btn-lg pulse-btn">Inizia ora</a>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="text-center mb-5 reveal">
+            <span class="badge bg-primary px-3 py-2 mb-3 rounded-pill">TESTIMONIANZE</span>
+            <h2 class="display-5 fw-bold">Gli utenti amano TravelGpt</h2>
+            <p class="lead text-muted mx-auto" style="max-width: 700px;">Scopri cosa dicono di noi i viaggiatori che hanno usato la nostra piattaforma</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-4 reveal">
+                <div class="card h-100 border-0 shadow-sm testimonial-card">
+                    <div class="card-body p-4">
+                        <div class="mb-3 text-warning">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <p class="fst-italic mb-4">"Ho pianificato un tour della Toscana in pochi minuti! I suggerimenti dell'IA sono stati fantastici e la gestione delle spese mi ha fatto risparmiare tempo e denaro."</p>
+                        <div class="d-flex align-items-center">
+                            <img src="https://randomuser.me/api/portraits/women/32.jpg" class="rounded-circle me-3" width="48" height="48" alt="User">
+                            <div>
+                                <h6 class="mb-0">Laura Bianchi</h6>
+                                <small class="text-muted">Roma, Italia</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 reveal" data-delay="100">
+                <div class="card h-100 border-0 shadow-sm testimonial-card">
+                    <div class="card-body p-4">
+                        <div class="mb-3 text-warning">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <p class="fst-italic mb-4">"TravelGpt ha reso la pianificazione del nostro viaggio in Grecia incredibilmente semplice. L'itinerario generato era perfetto e la mappa ha reso tutto molto chiaro."</p>
+                        <div class="d-flex align-items-center">
+                            <img src="https://randomuser.me/api/portraits/men/44.jpg" class="rounded-circle me-3" width="48" height="48" alt="User">
+                            <div>
+                                <h6 class="mb-0">Marco Rossi</h6>
+                                <small class="text-muted">Milano, Italia</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 reveal" data-delay="200">
+                <div class="card h-100 border-0 shadow-sm testimonial-card">
+                    <div class="card-body p-4">
+                        <div class="mb-3 text-warning">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star-half-alt"></i>
+                        </div>
+                        <p class="fst-italic mb-4">"Abbiamo utilizzato TravelGpt per organizzare un viaggio di gruppo in Giappone. La gestione delle spese condivise è stata fondamentale per evitare confusione tra i partecipanti."</p>
+                        <div class="d-flex align-items-center">
+                            <img src="https://randomuser.me/api/portraits/women/68.jpg" class="rounded-circle me-3" width="48" height="48" alt="User">
+                            <div>
+                                <h6 class="mb-0">Giulia Verdi</h6>
+                                <small class="text-muted">Napoli, Italia</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- App Preview Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6 reveal">
+                <span class="badge bg-primary px-3 py-2 mb-3 rounded-pill">ANTEPRIMA</span>
+                <h2 class="display-5 fw-bold mb-4">Un'interfaccia intuitiva per ogni viaggiatore</h2>
+                <p class="lead text-muted mb-4">La nostra applicazione è progettata per essere facile da usare, anche per chi non ha familiarità con la tecnologia. La mappa interattiva e l'assistente IA ti guidano passo dopo passo.</p>
+                
+                <div class="d-flex mb-4">
+                    <div class="feature-check me-3">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <div>
+                        <h5>Interfaccia drag-and-drop</h5>
+                        <p class="text-muted">Trascina e rilascia le destinazioni per creare il tuo itinerario personalizzato.</p>
+                    </div>
+                </div>
+                
+                <div class="d-flex mb-4">
+                    <div class="feature-check me-3">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <div>
+                        <h5>Dashboard personalizzata</h5>
+                        <p class="text-muted">Visualizza tutti i tuoi viaggi passati e futuri in un'unica schermata organizzata.</p>
+                    </div>
+                </div>
+                
+                <div class="d-flex">
+                    <div class="feature-check me-3">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <div>
+                        <h5>Responsive su tutti i dispositivi</h5>
+                        <p class="text-muted">Accedi ai tuoi itinerari da desktop, tablet o smartphone, ovunque tu sia.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 reveal" data-delay="200">
+                <div class="position-relative">
+                    <div class="device-wrapper">
+                        <div class="device-container">
+                            <img src="https://i.ibb.co/xqBXdKQ/travel-app-interface.png" class="img-fluid rounded-3 shadow" alt="App interface preview">
+                        </div>
+                    </div>
+                    <div class="position-absolute" style="top: -30px; right: -20px; z-index: -1;">
+                        <svg width="150" height="150" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                            <path fill="#4d97ff" d="M45.2,-58.9C59.6,-47.1,73.2,-34.5,79.9,-18.2C86.6,-1.9,86.3,18,79.5,35.2C72.7,52.3,59.3,66.8,43,74C26.8,81.3,7.7,81.3,-10.9,78.5C-29.6,75.7,-47.7,70,-60.4,57.4C-73.1,44.9,-80.4,25.6,-81.7,5.9C-83,-13.8,-78.3,-34,-66.8,-47.9C-55.2,-61.7,-36.8,-69.2,-19.6,-70.1C-2.4,-71.1,14.6,-65.7,29.5,-60.6C44.5,-55.6,66.5,-51,79.9,-38.1C93.3,-25.3,98.3,-4.1,93.2,13.3C88.1,30.8,73,44.4,56.6,52.2C40.2,60.1,22.5,62.1,6.4,61.5C-9.7,60.9,-19.2,57.8,-34.7,54.5C-50.2,51.3,-71.6,47.9,-79.1,36.4C-86.7,24.8,-80.5,5.1,-75.9,-14.2C-71.3,-33.4,-68.4,-52.2,-57.5,-64.6C-46.6,-77,-28.8,-83,-11.9,-79C5,-75,30.8,-70.6,45.2,-58.9Z" transform="translate(100 100)" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-5 bg-primary text-white">
+    <div class="container text-center py-4">
+        <h2 class="display-5 fw-bold mb-4 animate__animated animate__fadeIn">Pronto a pianificare il tuo prossimo viaggio?</h2>
+        <p class="lead mb-5 mx-auto animate__animated animate__fadeIn animate__delay-1s" style="max-width: 700px;">Registrati gratuitamente e inizia subito a creare itinerari personalizzati con TravelGpt</p>
+        <div class="animate__animated animate__fadeIn animate__delay-2s">
+            <a asp-page="/Account/Register" class="btn btn-light btn-lg me-2 shadow">Registrati gratis</a>
+            <a asp-page="/Dashboard" class="btn btn-outline-light btn-lg">Esplora la mappa</a>
+        </div>
+    </div>
+</section>
+
+@section Styles {
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet" />
+    
+    <style>
+        /* Base Variables & Typography */
+        :root {
+            --primary-color: #4d97ff;
+            --primary-dark: #3a7fd9;
+            --primary-light: #6babff;
+            --secondary-color: #FF6B6B;
+            --text-dark: #2d3748;
+            --text-muted: #718096;
+            --bg-light: #f8fafc;
+            --border-radius: 12px;
+            --card-radius: 16px;
+            --btn-radius: 50px;
+            --transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            color: var(--text-dark);
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-weight: 700;
+        }
+
+        .text-muted {
+            color: var(--text-muted) !important;
+        }
+
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            min-height: 600px;
+            max-height: 900px;
+            position: relative;
+        }
+
+        .hero-video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: brightness(0.8);
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.6) 100%);
+            backdrop-filter: blur(2px);
+        }
+
+        .hero .container {
+            z-index: 10;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .hero .lead {
+            font-size: 1.25rem;
+            text-shadow: 0 1px 5px rgba(0,0,0,0.2);
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            z-index: 10;
+        }
+
+        .scroll-indicator a {
+            display: inline-block;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 28px;
+            transition: all 0.5s ease;
+            animation: float 2s infinite ease-in-out;
+        }
+
+        .scroll-indicator a:hover {
+            color: white;
+            transform: translateY(-5px);
+            animation-play-state: paused;
+        }
+
+       @@keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        @@keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-20px); }
+            60% { transform: translateY(-10px); }
+        }
+
+        /* Badge Styling */
+        .badge {
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        .bg-primary {
+            background: linear-gradient(45deg, var(--primary-color), var(--primary-light)) !important;
+        }
+
+        /* Button Styling */
+        .btn {
+            position: relative;
+            overflow: hidden;
+            border-radius: var(--btn-radius);
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            transition: var(--transition);
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, var(--primary-color), var(--primary-light));
+            border: none;
+        }
+
+        .btn-primary:hover, .btn-primary:focus {
+            background: linear-gradient(45deg, var(--primary-dark), var(--primary-color));
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(77, 151, 255, 0.25);
+        }
+
+        .btn-outline-light {
+            border-width: 2px;
+            font-weight: 500;
+        }
+
+        .btn-outline-light:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-lg {
+            padding: 0.75rem 1.75rem;
+        }
+
+        .pulse-btn {
+            position: relative;
+        }
+
+        .pulse-btn:after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 120%;
+            height: 120%;
+            transform: translate(-50%, -50%) scale(0);
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            opacity: 0;
+            z-index: -1;
+            animation: pulse 2s infinite;
+        }
+
+        @@keyframes pulse {
+            0% { transform: translate(-50%, -50%) scale(0); opacity: 0.8; }
+            100% { transform: translate(-50%, -50%) scale(1.2); opacity: 0; }
+        }
+
+        /* Feature Cards */
+        .feature-image {
+            width: 100%;
+            height: 200px;
+            overflow: hidden;
+            border-radius: var(--border-radius);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.07);
+        }
+
+        .feature-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.7s ease;
+        }
+
+        .hover-card {
+            border-radius: var(--card-radius);
+            transition: var(--transition);
+        }
+
+        .hover-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 30px rgba(0, 0, 0, 0.1) !important;
+        }
+
+        .hover-card:hover .feature-image img {
+            transform: scale(1.05);
+        }
+
+        .card {
+            border-radius: var(--card-radius);
+            overflow: hidden;
+        }
+
+        /* Step Badges */
+        .step-badge {
+            position: absolute;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, var(--primary-color), var(--primary-light));
+            color: white;
+            font-weight: 700;
+            font-size: 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 20px rgba(77, 151, 255, 0.25);
+            top: 15px;
+            right: 15px;
+            z-index: 10;
+        }
+
+        /* Testimonial Cards */
+        .testimonial-card {
+            transition: var(--transition);
+        }
+
+        .testimonial-card:hover {
+            transform: translateY(-5px) rotate(1deg);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1) !important;
+        }
+
+        .testimonial-card .rounded-circle {
+            transition: transform 0.5s ease;
+            border: 3px solid white;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .testimonial-card:hover .rounded-circle {
+            transform: scale(1.1);
+        }
+
+        /* Feature Check */
+        .feature-check {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(77,151,255,0.15), rgba(107,171,255,0.3));
+            color: var(--primary-color);
+            box-shadow: 0 5px 15px rgba(77,151,255,0.1);
+        }
+
+        /* Reveal Animation on Scroll */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.215, 0.61, 0.355, 1);
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Section Styling */
+        section {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .bg-light {
+            background-color: #f8fafc !important;
+        }
+
+        .bg-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light)) !important;
+        }
+
+        /* Card Images Enhancement */
+        .card-img-top {
+            height: 220px;
+            object-fit: cover;
+        }
+
+        /* Utility Classes */
+        .shadow-sm {
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05) !important;
+        }
+
+        .py-5 {
+            padding-top: 4rem !important;
+            padding-bottom: 4rem !important;
+        }
+
+        .display-4, .display-5 {
+            font-weight: 700;
+        }
+
+        .lead {
+            font-weight: 400;
+        }
+
+        /* Media Queries */
+        @@media (max-width: 991.98px) {
+            .hero h1 {
+                font-size: 2.75rem;
+            }
+            .hero .lead {
+                font-size: 1.15rem;
+            }
+        }
+
+        @@media (max-width: 767.98px) {
+            .hero h1 {
+                font-size: 2.25rem;
+            }
+            .py-5 {
+                padding-top: 3rem !important;
+                padding-bottom: 3rem !important;
+            }
+        }
+
+        /* Additional Modern Effects */
+        .display-4::after,
+        .display-5::after {
+            content: '';
+            display: block;
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(to right, var(--primary-color), var(--primary-light));
+            margin: 0.5rem auto 1rem;
+            border-radius: 2px;
+        }
+
+        /* Button ripple effect */
+        .btn::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            background-image: radial-gradient(circle, #fff 10%, transparent 10%);
+            background-repeat: no-repeat;
+            background-position: 50%;
+            transform: scale(10, 10);
+            opacity: 0;
+            transition: transform 0.5s, opacity 1s;
+        }
+
+        .btn:active::after {
+            transform: scale(0, 0);
+            opacity: 0.3;
+            transition: 0s;
+        }
+
+        /* Device shadow and glow */
+        .device-wrapper {
+            position: relative;
+        }
+
+        .device-container {
+            position: relative;
+            border-radius: 30px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.2);
+            transform: perspective(1000px) rotateY(-5deg) rotateX(5deg);
+            transition: var(--transition);
+        }
+
+        .device-container:hover {
+            transform: perspective(1000px) rotateY(0deg) rotateX(0deg);
+        }
+
+        .device-container::after {
+            content: '';
+            position: absolute;
+            top: -20px;
+            left: -20px;
+            right: -20px;
+            bottom: -20px;
+            background: radial-gradient(ellipse at center, rgba(77,151,255,0.1) 0%, rgba(0,0,0,0) 70%);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .device-container img {
+            border-radius: 20px;
+        }
+    </style>
+}
+
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Scroll reveal animation
+            function reveal() {
+                var reveals = document.querySelectorAll('.reveal');
+                
+                for (var i = 0; i < reveals.length; i++) {
+                    var windowHeight = window.innerHeight;
+                    var elementTop = reveals[i].getBoundingClientRect().top;
+                    var elementVisible = 150;
+                    
+                    if (elementTop < windowHeight - elementVisible) {
+                        setTimeout((function(index) {
+                            return function() {
+                                reveals[index].classList.add('active');
+                            }
+                        })(i), reveals[i].getAttribute('data-delay') || 0);
+                    }
+                }
+            }
+            
+            window.addEventListener('scroll', reveal);
+            reveal(); // Trigger on load
+            
+            // Smooth scroll for anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    const targetId = this.getAttribute('href');
+                    const targetElement = document.querySelector(targetId);
+                    
+                    if (targetElement) {
+                        window.scrollTo({
+                            top: targetElement.offsetTop,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+}

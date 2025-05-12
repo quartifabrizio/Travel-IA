@@ -1,0 +1,529 @@
+﻿@page
+@model TravelGpt.Pages.Admin.DashboardModel
+@{
+    ViewData["Title"] = "Dashboard Amministratore";
+}
+
+<!-- Custom dashboard styles -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+
+<div class="dashboard-container bg-light">
+    <!-- Header Banner con immagine di Cinque Terre in Italia -->
+    <div class="dashboard-banner mb-4">
+        <div class="overlay"></div>
+        <div class="container-fluid px-4 py-5 position-relative">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="text-white fw-bold mb-2">Dashboard Amministratore</h1>
+                    <p class="text-white opacity-75 mb-0">Benvenuto nel pannello di controllo di TravelGpt</p>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <div class="d-inline-flex align-items-center bg-white bg-opacity-25 p-2 rounded-pill px-3">
+                        <div class="avatar-circle bg-white text-primary me-2">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="text-white">
+                            <small class="d-block opacity-75">Login effettuato come</small>
+                            <span class="fw-medium">@User.Identity?.Name</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Breadcrumb -->
+    <div class="bg-white shadow-sm py-3 px-4 mb-4">
+        <div class="container-fluid">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="/" class="text-decoration-none">Home</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="container-fluid px-4 pb-5">
+        <!-- Stats cards -->
+        <div class="row g-4 mb-4 animate__animated animate__fadeIn">
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm h-100 rounded-4 overflow-hidden">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="stat-icon-container flex-shrink-0 bg-primary bg-gradient bg-opacity-10 p-3 rounded-4 me-3">
+                                <i class="fas fa-users text-primary" style="font-size: 28px"></i>
+                            </div>
+                            <div>
+                                <h6 class="card-title fw-normal text-muted mb-1">Utenti Totali</h6>
+                                <h2 class="fw-bold mb-0">@Model.TotalUsers</h2>
+                            </div>
+                        </div>
+                        <div class="d-flex">
+                            <a href="/Admin/UserManagement" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                                <i class="fas fa-cog me-1"></i> Gestisci
+                            </a>
+                            <div class="ms-auto text-muted small d-flex align-items-center">
+                                <span class="badge bg-success bg-opacity-10 text-success px-2 py-1 me-1">
+                                    <i class="fas fa-arrow-up me-1"></i>
+                                    @Model.NewUsersThisMonth
+                                </span>
+                                <span>questo mese</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-white border-0 pt-0 pb-3 px-4">
+                        <div class="progress" style="height: 4px;">
+                            <div class="progress-bar bg-primary" role="progressbar" style="width: 75%;" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm h-100 rounded-4 overflow-hidden">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="stat-icon-container flex-shrink-0 bg-success bg-gradient bg-opacity-10 p-3 rounded-4 me-3">
+                                <i class="fas fa-plane-departure text-success" style="font-size: 28px"></i>
+                            </div>
+                            <div>
+                                <h6 class="card-title fw-normal text-muted mb-1">Viaggi Pianificati</h6>
+                                <h2 class="fw-bold mb-0">@Model.TotalTrips</h2>
+                            </div>
+                        </div>
+                        <div class="d-flex">
+                            <a href="#" class="btn btn-sm btn-outline-success rounded-pill px-3 disabled">
+                                <i class="fas fa-cog me-1"></i> Gestisci
+                            </a>
+                            <div class="ms-auto text-muted small d-flex align-items-center">
+                                <span class="badge bg-success bg-opacity-10 text-success px-2 py-1 me-1">
+                                    <i class="fas fa-arrow-up me-1"></i>
+                                    @Model.NewTripsThisMonth
+                                </span>
+                                <span>questo mese</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-white border-0 pt-0 pb-3 px-4">
+                        <div class="progress" style="height: 4px;">
+                            <div class="progress-bar bg-success" role="progressbar" style="width: 65%;" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm h-100 rounded-4 overflow-hidden">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="stat-icon-container flex-shrink-0 bg-info bg-gradient bg-opacity-10 p-3 rounded-4 me-3">
+                                <i class="fas fa-map-marker-alt text-info" style="font-size: 28px"></i>
+                            </div>
+                            <div>
+                                <h6 class="card-title fw-normal text-muted mb-1">Destinazioni</h6>
+                                <h2 class="fw-bold mb-0">@Model.TotalDestinations</h2>
+                            </div>
+                        </div>
+                        <div class="d-flex">
+                            <a href="#" class="btn btn-sm btn-outline-info rounded-pill px-3 disabled">
+                                <i class="fas fa-eye me-1"></i> Dettagli
+                            </a>
+                            <div class="ms-auto text-muted small d-flex align-items-center">
+                                <span class="badge bg-light text-dark px-2 py-1 me-1">
+                                    <i class="fas fa-trophy text-warning me-1"></i>
+                                    <span class="fw-medium">@Model.TopDestination</span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-white border-0 pt-0 pb-3 px-4">
+                        <div class="progress" style="height: 4px;">
+                            <div class="progress-bar bg-info" role="progressbar" style="width: 60%;" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main content area -->
+        <div class="row g-4 mb-4 animate__animated animate__fadeIn animate__delay-1s">
+            <div class="col-md-8">
+                <!-- Itinerari Multi-Mappa -->
+                <div class="card border-0 shadow-sm mb-4 rounded-4 overflow-hidden">
+                    <div class="card-body p-0">
+                        <img src="https://images.unsplash.com/photo-1526772662000-3f88f10405ff?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1950&q=80"
+                             alt="Itinerari Multi-Mappa" class="img-fluid w-100">
+                        <div class="p-4">
+                            <h5 class="fw-bold mb-2">Itinerari Multi-Mappa</h5>
+                            <p class="text-muted mb-0">Permetti agli utenti di pianificare i propri viaggi con mappe interattive dettagliate.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabella attività recenti -->
+                <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                    <div class="card-header bg-white py-3 px-4 border-bottom-0">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="card-title fw-bold mb-0">Attività Recenti</h5>
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-filter me-1"></i> Filtra
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#">Tutti i viaggi</a></li>
+                                    <li><a class="dropdown-item" href="#">Ultimi 7 giorni</a></li>
+                                    <li><a class="dropdown-item" href="#">Questo mese</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        @if (Model.RecentTrips.Any())
+                        {
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th class="ps-4">Utente</th>
+                                            <th>Viaggio</th>
+                                            <th>Creato il</th>
+                                            <th>Destinazioni</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var trip in Model.RecentTrips)
+                                        {
+                                            <tr>
+                                                <td class="ps-4">
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="avatar-circle bg-primary bg-opacity-10 text-primary me-2">
+                                                            @(trip.User.FirstName.Length > 0 ? trip.User.FirstName[0].ToString() : "")@(trip.User.LastName.Length > 0 ? trip.User.LastName[0].ToString() : "")
+                                                        </div>
+                                                        <div>@trip.User.FirstName @trip.User.LastName</div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <span class="fw-medium">@trip.Title</span>
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-light text-dark">
+                                                        <i class="far fa-calendar-alt me-1 text-muted"></i>
+                                                        @trip.CreatedAt.ToString("dd/MM/yyyy")
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        @foreach (var city in trip.Stops.Select(s => s.CityName).Take(2))
+                                                        {
+                                                            <span class="badge bg-light border text-dark me-1">@city</span>
+                                                        }
+                                                        @if (trip.Stops.Count() > 2)
+                                                        {
+                                                            <span class="badge bg-light border text-dark">+@(trip.Stops.Count() - 2)</span>
+                                                        }
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="text-center p-5">
+                                <div class="mb-3">
+                                    <i class="fas fa-plane-slash text-muted" style="font-size: 3rem;"></i>
+                                </div>
+                                <h5 class="text-muted mb-2">Nessun viaggio recente</h5>
+                                <p class="text-muted mb-3">Non ci sono viaggi recenti da mostrare in questo momento.</p>
+                                <a href="#" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                                    <i class="fas fa-plus me-1"></i> Crea nuovo viaggio
+                                </a>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <!-- Utenti per Ruolo -->
+                <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+                    <div class="card-header bg-white py-3 px-4 border-bottom-0">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="card-title fw-bold mb-0">Utenti per Ruolo</h5>
+                            <button class="btn btn-sm btn-light" type="button">
+                                <i class="fas fa-ellipsis-h"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body px-4 py-3">
+                        <div class="d-flex justify-content-center my-3">
+                            <div style="width: 180px; height: 180px;">
+                                <canvas id="roleChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-around mt-4">
+                            <div class="text-center">
+                                <div class="d-flex align-items-center justify-content-center mb-2">
+                                    <span class="d-inline-block rounded-circle bg-danger me-2" style="width: 12px; height: 12px;"></span>
+                                    <span class="fw-medium">Amministratori</span>
+                                </div>
+                                <h4 class="fw-bold mb-0">@Model.AdminCount</h4>
+                            </div>
+                            <div class="text-center">
+                                <div class="d-flex align-items-center justify-content-center mb-2">
+                                    <span class="d-inline-block rounded-circle bg-success me-2" style="width: 12px; height: 12px;"></span>
+                                    <span class="fw-medium">Clienti</span>
+                                </div>
+                                <h4 class="fw-bold mb-0">@Model.ClientCount</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gestione Budget -->
+                <div class="card border-0 shadow-sm mb-4 rounded-4 overflow-hidden">
+                    <div class="card-body p-0">
+                        <img src="https://images.unsplash.com/photo-1579621970588-a35d0e7ab9b6?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1950&q=80"
+                             alt="Gestione Budget" class="img-fluid w-100">
+                        <div class="p-4">
+                            <h5 class="fw-bold mb-2">Gestione Budget</h5>
+                            <p class="text-muted mb-0">Monitora le spese e controlla il budget disponibile durante il viaggio.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Interfaccia Intuitiva -->
+                <div class="card border-0 shadow-sm mb-4 rounded-4 overflow-hidden">
+                    <div class="card-body p-0">
+                        <img src="https://images.unsplash.com/photo-1512453979798-5ea266f8880c?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1950&q=80"
+                             alt="Interfaccia Intuitiva" class="img-fluid w-100">
+                        <div class="p-4">
+                            <h5 class="fw-bold mb-2">Un'Interfaccia Intuitiva per Ogni Viaggiatore</h5>
+                            <p class="text-muted mb-0">App facile da usare che rende la pianificazione semplice e veloce.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Attività Sistema -->
+                <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                    <div class="card-header bg-white py-3 px-4 border-bottom-0 d-flex justify-content-between align-items-center">
+                        <h5 class="card-title fw-bold mb-0">Attività Sistema</h5>
+                        <div class="activity-date">
+                            <span class="badge bg-light px-3 py-2 text-muted">
+                                <i class="far fa-calendar-alt me-1"></i> @DateTime.Now.ToString("dd/MM/yyyy")
+                            </span>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="system-activity-list">
+                            <div class="system-activity-item p-4 border-bottom">
+                                <div class="d-flex">
+                                    <div class="activity-icon bg-success bg-opacity-10 text-success me-3">
+                                        <i class="fas fa-user-plus"></i>
+                                    </div>
+                                    <div>
+                                        <p class="mb-0 fw-medium">Nuovo utente registrato</p>
+                                        <p class="text-muted small mb-0">Marco Rossi ha creato un account</p>
+                                        <span class="badge bg-light text-secondary mt-1">2 ore fa</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="system-activity-item p-4 border-bottom">
+                                <div class="d-flex">
+                                    <div class="activity-icon bg-warning bg-opacity-10 text-warning me-3">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                    </div>
+                                    <div>
+                                        <p class="mb-0 fw-medium">Backup sistema completato</p>
+                                        <p class="text-muted small mb-0">Backup automatico dei dati eseguito con successo</p>
+                                        <span class="badge bg-light text-secondary mt-1">5 ore fa</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="system-activity-item p-4">
+                                <div class="d-flex">
+                                    <div class="activity-icon bg-info bg-opacity-10 text-info me-3">
+                                        <i class="fas fa-plane"></i>
+                                    </div>
+                                    <div>
+                                        <p class="mb-0 fw-medium">Nuovo viaggio pianificato</p>
+                                        <p class="text-muted small mb-0">Viaggio creato da Giulia Bianchi</p>
+                                        <span class="badge bg-light text-secondary mt-1">8 ore fa</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .dashboard-container {
+        min-height: calc(100vh - 56px);
+    }
+
+    /* Stile per il banner della dashboard con Cinque Terre */
+    .dashboard-banner {
+        background-image: url('https://images.unsplash.com/photo-1516483638261-f4dbaf036963?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1950&q=80');
+        background-size: cover;
+        background-position: center;
+        position: relative;
+        color: white;
+    }
+
+        .dashboard-banner .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(13, 71, 161, 0.85) 0%, rgba(33, 150, 243, 0.75) 100%);
+        }
+
+    /* Stile per le icone delle statistiche */
+    .stat-icon-container {
+        width: 70px;
+        height: 70px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+    }
+
+    .card:hover .stat-icon-container {
+        transform: scale(1.1);
+    }
+
+    .avatar-circle {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 500;
+    }
+
+    .activity-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+    }
+
+    .progress {
+        border-radius: 10px;
+    }
+
+    .progress-bar {
+        border-radius: 10px;
+    }
+
+    .badge {
+        font-weight: 500;
+    }
+
+    .system-activity-item {
+        transition: all 0.2s ease;
+    }
+
+        .system-activity-item:hover {
+            background-color: #f8f9fa;
+        }
+
+    /* Hover effect for cards */
+    .card {
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.08) !important;
+        }
+</style>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Crea il grafico a torta
+            const ctx = document.getElementById('roleChart').getContext('2d');
+            const roleChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Admin', 'Clienti'],
+                    datasets: [{
+                        data: [@Model.AdminCount, @Model.ClientCount],
+                        backgroundColor: [
+                            'rgba(220, 53, 69, 0.85)',
+                            'rgba(25, 135, 84, 0.85)',
+                        ],
+                        borderColor: [
+                            '#ffffff',
+                            '#ffffff',
+                        ],
+                        borderWidth: 2,
+                        hoverOffset: 4,
+                        cutout: '75%'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                            padding: 10,
+                            titleFont: {
+                                size: 14,
+                                weight: 'bold'
+                            },
+                            bodyFont: {
+                                size: 13
+                            },
+                            displayColors: false,
+                            callbacks: {
+                                label: function (context) {
+                                    let value = context.raw;
+                                    let total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    let percentage = Math.round((value / total) * 100);
+                                    return `${context.label}: ${value} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    },
+                    animation: {
+                        animateScale: true,
+                        animateRotate: true,
+                        duration: 1000
+                    },
+                    elements: {
+                        arc: {
+                            borderRadius: 6
+                        }
+                    }
+                }
+            });
+
+            // Animazione per le carte
+            const cards = document.querySelectorAll('.card');
+            cards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.classList.add('show');
+                }, 100 * index);
+            });
+        });
+    </script>
+}

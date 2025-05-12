@@ -1,0 +1,617 @@
+﻿@page
+@model TravelGpt.Pages.Admin.UserManagementModel
+@{
+    ViewData["Title"] = "Gestione Utenti";
+}
+
+<!-- Custom styles -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+
+<div class="user-management-container bg-light">
+    <!-- Header with breadcrumb -->
+    <div class="bg-white shadow-sm py-3 px-4 mb-4">
+        <div class="container-fluid">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="/" class="text-decoration-none">Home</a></li>
+                    <li class="breadcrumb-item"><a href="/Admin/Dashboard" class="text-decoration-none">Dashboard</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Gestione Utenti</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="container-fluid px-4 pb-5">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+            <div>
+                <h1 class="h3 fw-bold text-dark mb-1">Gestione Utenti</h1>
+                <p class="text-muted">Gestisci e monitora gli account utenti della piattaforma</p>
+            </div>
+            <div class="d-flex gap-2">
+                <button class="btn btn-outline-primary d-flex align-items-center">
+                    <i class="fas fa-file-export me-2"></i> Esporta
+                </button>
+                <a href="/Admin/Dashboard" class="btn btn-primary d-flex align-items-center">
+                    <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+                </a>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden animate__animated animate__fadeIn">
+            <div class="card-header bg-white py-3 px-4 border-bottom-0">
+                <div class="row align-items-center">
+                    <div class="col-12 col-md-6 mb-3 mb-md-0">
+                        <div class="d-flex align-items-center">
+                            <h5 class="card-title fw-bold mb-0">Lista Utenti</h5>
+                            <span class="badge bg-primary rounded-pill ms-2">@Model.Users.Count()</span>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <div class="d-flex gap-2">
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0">
+                                    <i class="fas fa-search text-muted"></i>
+                                </span>
+                                <input type="text" id="searchInput" class="form-control border-start-0 ps-0"
+                                       placeholder="Cerca per nome, email o ruolo...">
+                            </div>
+                            <button class="btn btn-outline-secondary dropdown-toggle" type="button"
+                                    data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-filter me-1"></i> Filtri
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                                <li><h6 class="dropdown-header">Filtra per ruolo</h6></li>
+                                <li><a class="dropdown-item" href="#">Tutti gli utenti</a></li>
+                                <li><a class="dropdown-item" href="#">Solo amministratori</a></li>
+                                <li><a class="dropdown-item" href="#">Solo clienti</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><h6 class="dropdown-header">Filtra per data</h6></li>
+                                <li><a class="dropdown-item" href="#">Più recenti</a></li>
+                                <li><a class="dropdown-item" href="#">Più vecchi</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0" id="usersTable">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-4">Utente</th>
+                                <th>Email</th>
+                                <th>Ruolo</th>
+                                <th>Registrato il</th>
+                                <th>
+                                    <div class="d-flex align-items-center">
+                                        Viaggi <i class="fas fa-sort ms-1 text-muted"></i>
+                                    </div>
+                                </th>
+                                <th class="text-end pe-4">Azioni</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var user in Model.Users)
+                            {
+                                var userRole = await Model.GetUserRole(user);
+                                var isAdmin = userRole == "Admin";
+                                var adminCount = (await Model.GetAdminCount());
+                                var canDelete = !isAdmin || adminCount > 1;
+
+                                <tr class="user-row">
+                                    <td class="ps-4">
+                                        <div class="d-flex align-items-center">
+                                            <div class="flex-shrink-0">
+                                                @if (!string.IsNullOrEmpty(user.ProfilePictureUrl))
+                                                {
+                                                    <img src="@user.ProfilePictureUrl" alt="@user.FirstName"
+                                                 class="rounded-circle shadow-sm border border-3 border-white" width="48" height="48">
+                                                }
+                                                else
+                                                {
+                                                    <div class="avatar-circle bg-primary bg-opacity-10 text-primary">
+                                                        @user.FirstName[0]@user.LastName[0]
+                                                    </div>
+                                                }
+                                            </div>
+                                            <div class="ms-3">
+                                                <div class="d-flex align-items-center">
+                                                    <h6 class="fw-medium mb-0">@user.FirstName @user.LastName</h6>
+                                                    @if (isAdmin)
+                                                    {
+                                                        <span class="ms-2 badge rounded-pill bg-danger bg-opacity-10 text-danger px-2 py-1">
+                                                            <i class="fas fa-shield-alt me-1"></i>Admin
+                                                        </span>
+                                                    }
+                                                </div>
+                                                <small class="text-muted">ID: @user.Id.Substring(0, 8)...</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <i class="fas fa-envelope text-muted me-2"></i>
+                                            <span>@user.Email</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        @if (isAdmin)
+                                        {
+                                            <span class="badge bg-danger">Amministratore</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-success">Cliente</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <i class="far fa-calendar-alt text-muted me-2"></i>
+                                            @user.CreatedAt.ToString("dd/MM/yyyy")
+                                        </div>
+                                    </td>
+                                    <td>
+                                        @if (user.TripPlans.Count > 0)
+                                        {
+                                            <div class="d-flex align-items-center">
+                                                <span class="badge rounded-pill bg-info bg-opacity-10 text-info px-3 py-2">
+                                                    @user.TripPlans.Count
+                                                </span>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge rounded-pill bg-light text-muted px-3 py-2">0</span>
+                                        }
+                                    </td>
+                                    <td class="text-end pe-4">
+                                        <div class="d-flex justify-content-end gap-2">
+                                            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal"
+                                                data-bs-target="#detailsModal@(user.Id)">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-warning" data-bs-toggle="modal"
+                                                data-bs-target="#changeRoleModal@(user.Id)">
+                                                <i class="fas fa-user-tag"></i>
+                                            </button>
+                                            @if (canDelete)
+                                            {
+                                                <form method="post" asp-page-handler="DeleteUser" asp-route-userId="@user.Id"
+                                              class="delete-user-form">
+                                                    <button type="button" class="btn btn-sm btn-outline-danger delete-user-btn">
+                                                        <i class="fas fa-trash-alt"></i>
+                                                    </button>
+                                                </form>
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <!-- Modal per cambiare ruolo con design migliorato -->
+                                <div class="modal fade" id="changeRoleModal@(user.Id)" tabindex="-1"
+                                 aria-labelledby="changeRoleModalLabel@(user.Id)" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered">
+                                        <div class="modal-content border-0 shadow rounded-4">
+                                            <form method="post" asp-page-handler="ChangeRole" asp-route-userId="@user.Id">
+                                                <div class="modal-header border-bottom-0 pb-0">
+                                                    <h5 class="modal-title fw-bold" id="changeRoleModalLabel@(user.Id)">
+                                                        Modifica Ruolo Utente
+                                                    </h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body pt-0">
+                                                    <div class="d-flex align-items-center py-3 mb-4 border-bottom">
+                                                        <div class="flex-shrink-0">
+                                                            @if (!string.IsNullOrEmpty(user.ProfilePictureUrl))
+                                                            {
+                                                                <img src="@user.ProfilePictureUrl" alt="@user.FirstName"
+                                                             class="rounded-circle shadow-sm" width="60" height="60">
+                                                            }
+                                                            else
+                                                            {
+                                                                <div class="avatar-circle bg-primary bg-opacity-10 text-primary"
+                                                             style="width: 60px; height: 60px; font-size: 1.5rem;">
+                                                                    @user.FirstName[0]@user.LastName[0]
+                                                                </div>
+                                                            }
+                                                        </div>
+                                                        <div class="ms-3">
+                                                            <h5 class="mb-0">@user.FirstName @user.LastName</h5>
+                                                            <p class="text-muted mb-0">@user.Email</p>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="mb-4">
+                                                        <h6 class="fw-bold mb-3">Seleziona Ruolo</h6>
+                                                        <div class="d-flex gap-3">
+                                                            <div class="form-check role-selection-card @(isAdmin ? "selected" : "")">
+                                                                <input class="form-check-input" type="radio" name="role" id="roleAdmin@(user.Id)"
+                                                                   value="Admin" @(isAdmin ? "checked" : "")>
+                                                                <label class="form-check-label d-flex flex-column align-items-center p-3"
+                                                                   for="roleAdmin@(user.Id)">
+                                                                    <div class="role-icon bg-danger bg-opacity-10 text-danger mb-2">
+                                                                        <i class="fas fa-user-shield"></i>
+                                                                    </div>
+                                                                    <span class="fw-medium">Amministratore</span>
+                                                                    <small class="text-muted">Accesso completo</small>
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check role-selection-card @(!isAdmin ? "selected" : "")">
+                                                                <input class="form-check-input" type="radio" name="role" id="roleClient@(user.Id)"
+                                                                   value="Cliente" @(!isAdmin ? "checked" : "")>
+                                                                <label class="form-check-label d-flex flex-column align-items-center p-3"
+                                                                   for="roleClient@(user.Id)">
+                                                                    <div class="role-icon bg-success bg-opacity-10 text-success mb-2">
+                                                                        <i class="fas fa-user"></i>
+                                                                    </div>
+                                                                    <span class="fw-medium">Cliente</span>
+                                                                    <small class="text-muted">Accesso limitato</small>
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="alert alert-info d-flex align-items-center" role="alert">
+                                                        <i class="fas fa-info-circle me-2"></i>
+                                                        <div>
+                                                            La modifica del ruolo modificherà i permessi dell'utente immediatamente.
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer border-top-0">
+                                                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Annulla</button>
+                                                    <button type="submit" class="btn btn-primary">
+                                                        <i class="fas fa-save me-1"></i> Salva Modifiche
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Modal per dettagli utente con design migliorato -->
+                                <div class="modal fade" id="detailsModal@(user.Id)" tabindex="-1"
+                                 aria-labelledby="detailsModalLabel@(user.Id)" aria-hidden="true">
+                                    <div class="modal-dialog modal-lg modal-dialog-centered">
+                                        <div class="modal-content border-0 shadow rounded-4">
+                                            <div class="modal-header border-bottom-0 pb-0">
+                                                <h5 class="modal-title fw-bold" id="detailsModalLabel@(user.Id)">
+                                                    Dettagli Profilo Utente
+                                                </h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body pt-0">
+                                                <!-- User Profile Section -->
+                                                <div class="user-profile-card p-4 mb-4 rounded-4 bg-light">
+                                                    <div class="row">
+                                                        <div class="col-lg-3 text-center mb-4 mb-lg-0">
+                                                            <div class="position-relative d-inline-block">
+                                                                @if (!string.IsNullOrEmpty(user.ProfilePictureUrl))
+                                                                {
+                                                                    <img src="@user.ProfilePictureUrl" class="img-fluid rounded-circle border border-5 border-white shadow"
+                                                                 style="width: 140px; height: 140px; object-fit: cover;" alt="@user.FirstName">
+                                                                }
+                                                                else
+                                                                {
+                                                                    <div class="avatar-circle bg-primary bg-opacity-10 text-primary mx-auto"
+                                                                 style="width: 140px; height: 140px; font-size: 3rem;">
+                                                                        @user.FirstName[0]@user.LastName[0]
+                                                                    </div>
+                                                                }
+                                                                <div class="position-absolute bottom-0 end-0">
+                                                                    <span class="badge rounded-pill @(isAdmin ? "bg-danger" : "bg-success") p-2 border border-2 border-white">
+                                                                        <i class="fas @(isAdmin ? "fa-shield-alt" : "fa-user")"></i>
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-9">
+                                                            <h4 class="fw-bold mb-1">@user.FirstName @user.LastName</h4>
+                                                            <div class="d-flex align-items-center text-muted mb-3">
+                                                                <i class="fas fa-envelope me-2"></i>
+                                                                <span>@user.Email</span>
+                                                            </div>
+
+                                                            <div class="d-flex flex-wrap gap-2 mb-3">
+                                                                <div class="badge bg-light text-dark d-flex align-items-center p-2">
+                                                                    <i class="fas fa-id-badge text-primary me-2"></i>
+                                                                    <span>ID: @user.Id.Substring(0, 8)...</span>
+                                                                </div>
+                                                                <div class="badge bg-light text-dark d-flex align-items-center p-2">
+                                                                    <i class="fas fa-calendar-alt text-primary me-2"></i>
+                                                                    <span>Iscritto: @user.CreatedAt.ToString("dd/MM/yyyy")</span>
+                                                                </div>
+                                                                <div class="badge bg-light text-dark d-flex align-items-center p-2">
+                                                                    <i class="fas fa-plane-departure text-primary me-2"></i>
+                                                                    <span>Viaggi: @user.TripPlans.Count</span>
+                                                                </div>
+                                                                <div class="badge bg-light text-dark d-flex align-items-center p-2">
+                                                                    <i class="fas fa-clock text-primary me-2"></i>
+                                                                    <span>Iscritto da @((DateTime.Now - user.CreatedAt).Days) giorni</span>
+                                                                </div>
+                                                            </div>
+
+                                                            <hr class="my-3">
+
+                                                            <div class="d-flex gap-2">
+                                                                <button type="button" class="btn btn-sm btn-outline-primary">
+                                                                    <i class="fas fa-envelope me-1"></i> Contatta
+                                                                </button>
+                                                                <button type="button" class="btn btn-sm btn-outline-secondary"
+                                                                    data-bs-toggle="modal" data-bs-target="#changeRoleModal@(user.Id)"
+                                                                    data-bs-dismiss="modal">
+                                                                    <i class="fas fa-user-tag me-1"></i> Modifica Ruolo
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Trips Section -->
+                                                <div class="user-trips-section">
+                                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                                        <h5 class="fw-bold mb-0">
+                                                            <i class="fas fa-suitcase me-2 text-primary"></i>
+                                                            Viaggi dell'utente
+                                                        </h5>
+                                                        <span class="badge bg-primary rounded-pill">@user.TripPlans.Count</span>
+                                                    </div>
+
+                                                    @if (user.TripPlans.Any())
+                                                    {
+                                                        <div class="table-responsive rounded-4 border">
+                                                            <table class="table table-striped table-hover mb-0">
+                                                                <thead class="table-light">
+                                                                    <tr>
+                                                                        <th class="border-0">Titolo</th>
+                                                                        <th class="border-0">Data inizio</th>
+                                                                        <th class="border-0">Data fine</th>
+                                                                        <th class="border-0">Destinazioni</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    @foreach (var trip in user.TripPlans.Take(5))
+                                                                    {
+                                                                        <tr>
+                                                                            <td>
+                                                                                <div class="d-flex align-items-center">
+                                                                                    <i class="fas fa-map-marked-alt text-success me-2"></i>
+                                                                                    <span class="fw-medium">@trip.Title</span>
+                                                                                </div>
+                                                                            </td>
+                                                                            <td>@trip.StartDate.ToString("dd/MM/yyyy")</td>
+                                                                            <td>@trip.EndDate.ToString("dd/MM/yyyy")</td>
+                                                                            <td>
+                                                                                <div class="d-flex flex-wrap gap-1">
+                                                                                    @foreach (var city in trip.Stops.Select(s => s.CityName).Take(3))
+                                                                                    {
+                                                                                        <span class="badge bg-info bg-opacity-10 text-info">@city</span>
+                                                                                    }
+                                                                                    @if (trip.Stops.Count() > 3)
+                                                                                    {
+                                                                                        <span class="badge bg-secondary bg-opacity-10 text-secondary">
+                                                                                            +@(trip.Stops.Count() - 3)
+                                                                                        </span>
+                                                                                    }
+                                                                                </div>
+                                                                            </td>
+                                                                        </tr>
+                                                                    }
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                        @if (user.TripPlans.Count > 5)
+                                                        {
+                                                            <div class="d-flex justify-content-center mt-3">
+                                                                <a href="#" class="btn btn-sm btn-outline-primary rounded-pill">
+                                                                    <i class="fas fa-eye me-1"></i> Mostra tutti i @user.TripPlans.Count viaggi
+                                                                </a>
+                                                            </div>
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="text-center py-5 bg-light rounded-4">
+                                                            <div class="mb-3">
+                                                                <i class="fas fa-suitcase text-muted" style="font-size: 3rem;"></i>
+                                                            </div>
+                                                            <h6 class="text-muted mb-2">Nessun viaggio pianificato</h6>
+                                                            <p class="text-muted mb-0">Questo utente non ha ancora creato nessun itinerario.</p>
+                                                        </div>
+                                                    }
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer border-top-0">
+                                                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Chiudi</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="card-footer bg-white py-3 px-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="text-muted small">
+                        Mostrando <span class="fw-medium">@Model.Users.Count()</span> utenti
+                    </div>
+                    <nav aria-label="Navigazione pagine">
+                        <ul class="pagination pagination-sm mb-0">
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">
+                                    <i class="fas fa-chevron-left"></i>
+                                </a>
+                            </li>
+                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                            <li class="page-item"><a class="page-link" href="#">2</a></li>
+                            <li class="page-item"><a class="page-link" href="#">3</a></li>
+                            <li class="page-item">
+                                <a class="page-link" href="#">
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal di conferma eliminazione -->
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content border-0 shadow rounded-4">
+            <div class="modal-body text-center p-4">
+                <div class="mb-4">
+                    <div class="avatar-circle bg-danger bg-opacity-10 text-danger mx-auto" style="width: 70px; height: 70px;">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 2rem;"></i>
+                    </div>
+                </div>
+                <h5 class="fw-bold mb-3">Conferma Eliminazione</h5>
+                <p class="text-muted mb-4">Sei sicuro di voler eliminare questo utente? Questa azione è irreversibile.</p>
+                <div class="d-flex gap-2 justify-content-center">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Annulla</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Elimina</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .user-management-container {
+        min-height: calc(100vh - 56px);
+    }
+
+    .avatar-circle {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 500;
+    }
+
+    .badge {
+        font-weight: 500;
+    }
+
+    .user-row:hover {
+        background-color: rgba(var(--bs-primary-rgb), 0.03);
+    }
+
+    /* Role selection cards */
+    .role-selection-card {
+        border: 1px solid #dee2e6;
+        border-radius: 10px;
+        cursor: pointer;
+        flex: 1;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        transition: all 0.2s;
+    }
+
+        .role-selection-card:hover {
+            border-color: var(--bs-primary);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        .role-selection-card.selected {
+            border-color: var(--bs-primary);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .role-selection-card .form-check-input {
+            position: absolute;
+            opacity: 0;
+        }
+
+        .role-selection-card .form-check-label {
+            width: 100%;
+            margin: 0;
+            cursor: pointer;
+        }
+
+    .role-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 50px;
+        height: 50px;
+        border-radius: 10px;
+        font-size: 1.5rem;
+    }
+
+    /* Table styles */
+    .table > :not(caption) > * > * {
+        padding: 1rem 0.75rem;
+    }
+
+    /* Card hover animation */
+    .card {
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+        .card:hover {
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05) !important;
+        }
+</style>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Funzione di ricerca nella tabella
+            document.getElementById('searchInput').addEventListener('keyup', function () {
+                let searchValue = this.value.toLowerCase();
+                let tableRows = document.querySelectorAll('#usersTable tbody tr');
+
+                tableRows.forEach(row => {
+                    const text = row.textContent.toLowerCase();
+                    row.style.display = text.includes(searchValue) ? '' : 'none';
+                });
+            });
+
+            // Gestione eliminazione utente con conferma
+            const deleteButtons = document.querySelectorAll('.delete-user-btn');
+            const deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+            const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+            let currentForm = null;
+
+            deleteButtons.forEach(button => {
+                button.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    currentForm = this.closest('.delete-user-form');
+                    deleteModal.show();
+                });
+            });
+
+            confirmDeleteBtn.addEventListener('click', function () {
+                if (currentForm) {
+                    currentForm.submit();
+                }
+                deleteModal.hide();
+            });
+
+            // Highlight della role card selezionata
+            document.querySelectorAll('.role-selection-card input[type="radio"]').forEach(input => {
+                input.addEventListener('change', function () {
+                    // Remove selected class from all cards
+                    this.closest('.d-flex').querySelectorAll('.role-selection-card').forEach(card => {
+                        card.classList.remove('selected');
+                    });
+
+                    // Add selected class to parent card
+                    if (this.checked) {
+                        this.closest('.role-selection-card').classList.add('selected');
+                    }
+                });
+            });
+        });
+    </script>
+}

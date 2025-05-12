@@ -1,0 +1,133 @@
+﻿<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - TravelGpt</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    @await RenderSectionAsync("Styles", required: false)
+    <link rel="stylesheet" href="~/css/navbar-styles.css" asp-append-version="true" />
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-travelgpt fixed-top">
+            <div class="container">
+                <a class="navbar-brand" asp-page="/Index">
+                    <div class="brand-container">
+                        <div class="logo-circle">
+                            <i class="fas fa-globe-europe"></i>
+                        </div>
+                        <span class="brand-text">TravelGpt</span>
+                    </div>
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav mx-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" asp-page="/Dashboard">
+                                <i class="fas fa-compass nav-icon"></i> Esplora
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-page="/Itinerary/List">
+                                <i class="fas fa-map-marked-alt nav-icon"></i> I miei itinerari
+                            </a>
+                        </li>
+                     @*   <li class="nav-item">
+                            <a class="nav-link" asp-page="/Expenses/Manage">
+                                <i class="fas fa-plane-departure nav-icon"></i> Destinazioni
+                            </a>
+                        </li>*@
+                    </ul>
+                    <div class="nav-actions">
+                        <partial name="_LoginPartial" />
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="content-wrapper">
+        <main role="main">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="footer py-4 bg-light border-top mt-auto">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 mb-3 mb-md-0">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="fas fa-globe-europe text-primary me-2 fa-lg"></i>
+                        <span class="fw-bold">TravelGpt</span>
+                    </div>
+                    <p class="text-muted small mb-0">Pianifica viaggi intelligenti con l'aiuto dell'intelligenza artificiale</p>
+                </div>
+                <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <h6 class="mb-2">Collegamenti</h6>
+                            <ul class="list-unstyled small">
+                                <li><a href="#" class="text-decoration-none text-muted">Chi siamo</a></li>
+                                <li><a href="#" class="text-decoration-none text-muted">Privacy Policy</a></li>
+                                <li><a href="#" class="text-decoration-none text-muted">Termini di servizio</a></li>
+                            </ul>
+                        </div>
+                        <div class="col-sm-6">
+                            <h6 class="mb-2">Contatti</h6>
+                            <ul class="list-unstyled small text-muted">
+                                <li><i class="fas fa-envelope me-1"></i> info@travelgpt.com</li>
+                                <li><i class="fas fa-phone me-1"></i> +39 123 456 7890</li>
+                                <li class="mt-2">
+                                    <a href="#" class="text-decoration-none text-muted me-2"><i class="fab fa-facebook fa-lg"></i></a>
+                                    <a href="#" class="text-decoration-none text-muted me-2"><i class="fab fa-instagram fa-lg"></i></a>
+                                    <a href="#" class="text-decoration-none text-muted"><i class="fab fa-twitter fa-lg"></i></a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <hr class="my-3">
+            <div class="text-center text-muted small">
+                &copy; 2025 TravelGpt - Tutti i diritti riservati
+            </div>
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+    <script>
+        // Aggiunge la classe 'scrolled' alla navbar quando si scorre la pagina
+        $(window).scroll(function () {
+            if ($(this).scrollTop() > 50) {
+                $('.navbar-travelgpt').addClass('scrolled');
+            } else {
+                $('.navbar-travelgpt').removeClass('scrolled');
+            }
+        });
+
+        // Aggiunge la classe 'active' ai link della navbar quando selezionati
+        $(document).ready(function () {
+            var path = window.location.pathname;
+            $('.navbar-nav .nav-link').each(function () {
+                var href = $(this).attr('href');
+                if (path.indexOf(href) !== -1) {
+                    $(this).addClass('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

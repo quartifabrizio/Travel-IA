@@ -1,0 +1,665 @@
+﻿@page
+@model TravelGpt.Pages.Account.RegisterModel
+@{
+    ViewData["Title"] = "Registrati";
+}
+
+<div class="register-container py-5">
+    <div class="container">
+        <div class="row g-0 shadow-lg rounded-4 overflow-hidden">
+            <!-- Form Column -->
+            <div class="col-lg-6 bg-white order-2 order-lg-1">
+                <div class="p-4 p-lg-5">
+                    <div class="text-center mb-4 animate__animated animate__fadeInDown">
+                        <h1 class="h3 fw-bold text-gradient">Unisciti a noi</h1>
+                        <p class="text-muted">Crea un account e inizia a pianificare viaggi straordinari</p>
+                    </div>
+
+                    <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="animate__animated animate__fadeIn animate__delay-1s">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger alert-dismissible fade show mb-3 d-flex align-items-center" role="alert">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            <div>Si è verificato un errore. Controlla i dati inseriti.</div>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+
+                        <div class="row mb-4 g-3">
+                            <div class="col-md-6">
+                                <label asp-for="Input.FirstName" class="form-label fw-medium">Nome</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0">
+                                        <i class="fas fa-user text-muted"></i>
+                                    </span>
+                                    <input asp-for="Input.FirstName" class="form-control border-start-0" autocomplete="given-name" aria-required="true" placeholder="Mario" />
+                                </div>
+                                <span asp-validation-for="Input.FirstName" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="Input.LastName" class="form-label fw-medium">Cognome</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0">
+                                        <i class="fas fa-user text-muted"></i>
+                                    </span>
+                                    <input asp-for="Input.LastName" class="form-control border-start-0" autocomplete="family-name" aria-required="true" placeholder="Rossi" />
+                                </div>
+                                <span asp-validation-for="Input.LastName" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Input.Email" class="form-label fw-medium">Email</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0">
+                                    <i class="fas fa-envelope text-muted"></i>
+                                </span>
+                                <input asp-for="Input.Email" class="form-control border-start-0" autocomplete="email" aria-required="true" placeholder="nome@esempio.com" />
+                            </div>
+                            <span asp-validation-for="Input.Email" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Input.Password" class="form-label fw-medium">Password</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0">
+                                    <i class="fas fa-lock text-muted"></i>
+                                </span>
+                                <input asp-for="Input.Password" class="form-control border-start-0" autocomplete="new-password" aria-required="true" />
+                                <button class="btn btn-outline-secondary border-start-0 password-toggle" type="button" id="togglePassword">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            <div class="password-strength mt-2 d-none" id="passwordStrength">
+                                <div class="progress" style="height: 5px;">
+                                    <div class="progress-bar" id="passwordStrengthBar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                                <div class="d-flex justify-content-between mt-1">
+                                    <small class="text-muted">Debole</small>
+                                    <small class="text-muted">Media</small>
+                                    <small class="text-muted">Forte</small>
+                                </div>
+                            </div>
+                            <span asp-validation-for="Input.Password" class="text-danger small"></span>
+                            <small class="text-muted d-block mt-1">La password deve contenere almeno 8 caratteri, lettere maiuscole, minuscole e numeri</small>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Input.ConfirmPassword" class="form-label fw-medium">Conferma Password</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0">
+                                    <i class="fas fa-lock text-muted"></i>
+                                </span>
+                                <input asp-for="Input.ConfirmPassword" class="form-control border-start-0" autocomplete="new-password" aria-required="true" />
+                                <button class="btn btn-outline-secondary border-start-0 password-toggle" type="button" id="toggleConfirmPassword">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            <span asp-validation-for="Input.ConfirmPassword" class="text-danger small"></span>
+                        </div>
+
+                        <div class="form-check mb-4">
+                            <input asp-for="Input.AcceptTerms" class="form-check-input" />
+                            <label asp-for="Input.AcceptTerms" class="form-check-label">
+                                Accetto i <a href="#" class="text-primary" data-bs-toggle="modal" data-bs-target="#termsModal">termini e condizioni</a> di TravelGpt
+                            </label>
+                            <span asp-validation-for="Input.AcceptTerms" class="d-block text-danger small"></span>
+                        </div>
+
+                        <div class="d-grid mb-4">
+                            <button id="registerSubmit" type="submit" class="btn btn-primary btn-lg rounded-pill">
+                                <span class="spinner-border spinner-border-sm me-2 d-none" role="status" aria-hidden="true" id="registerSpinner"></span>
+                                <span>Crea account</span>
+                            </button>
+                        </div>
+                    </form>
+
+                    <div class="text-center animate__animated animate__fadeIn animate__delay-1s">
+                        <p class="mb-0">Hai già un account? <a asp-page="./Login" class="text-primary fw-medium">Accedi</a></p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Benefits Column -->
+            <div class="col-lg-6 benefits-column d-none d-lg-block position-relative order-1 order-lg-2">
+                <div class="benefits-image h-100"></div>
+                <div class="overlay"></div>
+                <div class="benefits-content text-white p-5">
+                    <div class="animate__animated animate__fadeInUp">
+                        <h2 class="h1 fw-bold mb-4">Perché registrarsi?</h2>
+                        
+                        <div class="benefit-item d-flex align-items-start mb-4">
+                            <div class="benefit-icon me-3">
+                                <i class="fas fa-save"></i>
+                            </div>
+                            <div>
+                                <h4 class="h5 fw-bold mb-2">Salva i tuoi itinerari</h4>
+                                <p class="mb-0">Crea e salva itinerari personalizzati accessibili da qualsiasi dispositivo</p>
+                            </div>
+                        </div>
+                        
+                        <div class="benefit-item d-flex align-items-start mb-4">
+                            <div class="benefit-icon me-3">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <div>
+                                <h4 class="h5 fw-bold mb-2">Consigli personalizzati</h4>
+                                <p class="mb-0">Ricevi suggerimenti IA basati sulle tue preferenze e sul tuo storico di viaggi</p>
+                            </div>
+                        </div>
+                        
+                        <div class="benefit-item d-flex align-items-start mb-4">
+                            <div class="benefit-icon me-3">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div>
+                                <h4 class="h5 fw-bold mb-2">Condividi con gli amici</h4>
+                                <p class="mb-0">Collabora in tempo reale alla pianificazione con amici e familiari</p>
+                            </div>
+                        </div>
+                        
+                        <div class="benefit-item d-flex align-items-start">
+                            <div class="benefit-icon me-3">
+                                <i class="fas fa-bell"></i>
+                            </div>
+                            <div>
+                                <h4 class="h5 fw-bold mb-2">Notifiche intelligenti</h4>
+                                <p class="mb-0">Ricevi avvisi su offerte speciali, cambi di programma e consigli di viaggio</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Decorative elements -->
+                <div class="floating-element floating-element-1"></div>
+                <div class="floating-element floating-element-2"></div>
+            </div>
+        </div>
+        
+        <div class="text-center mt-4">
+            <a href="/" class="text-muted text-decoration-none d-flex align-items-center justify-content-center">
+                <i class="fas fa-arrow-left me-2"></i> Torna alla home
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Termini e Condizioni con design migliorato -->
+<div class="modal fade" id="termsModal" tabindex="-1" aria-labelledby="termsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg">
+        <div class="modal-content border-0 shadow rounded-4">
+            <div class="modal-header border-bottom-0 bg-light">
+                <div class="d-flex align-items-center">
+                    <div class="modal-icon me-3">
+                        <i class="fas fa-file-contract text-primary"></i>
+                    </div>
+                    <h5 class="modal-title fw-bold" id="termsModalLabel">Termini e Condizioni</h5>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="alert alert-info d-flex">
+                    <div class="me-3 fs-4">
+                        <i class="fas fa-info-circle"></i>
+                    </div>
+                    <div>
+                        <strong>Informazione importante</strong>
+                        <p class="mb-0">Ti preghiamo di leggere attentamente i seguenti termini e condizioni prima di utilizzare TravelGpt.</p>
+                    </div>
+                </div>
+            
+                <div class="terms-section mb-4">
+                    <h6 class="fw-bold text-primary"><i class="fas fa-check-circle me-2"></i>1. Accettazione dei Termini</h6>
+                    <p class="mb-3">Utilizzando TravelGpt, accetti i presenti Termini e Condizioni. Se non accetti questi termini, non utilizzare il servizio. L'utilizzo continuato dell'applicazione costituisce accettazione di questi termini.</p>
+                </div>
+
+                <div class="terms-section mb-4">
+                    <h6 class="fw-bold text-primary"><i class="fas fa-shield-alt me-2"></i>2. Privacy</h6>
+                    <p class="mb-3">Consulta la nostra <a href="#" class="text-decoration-none">Informativa sulla Privacy</a> per comprendere come raccogliamo e utilizziamo i tuoi dati personali. Rispettiamo la tua privacy e adottiamo misure per proteggere le tue informazioni personali in conformità con il GDPR e altre normative sulla protezione dei dati.</p>
+                </div>
+
+                <div class="terms-section mb-4">
+                    <h6 class="fw-bold text-primary"><i class="fas fa-user-lock me-2"></i>3. Account</h6>
+                    <p class="mb-3">Sei responsabile del mantenimento della riservatezza del tuo account e della password. Devi notificarci immediatamente qualsiasi uso non autorizzato del tuo account. TravelGpt non sarà responsabile per eventuali perdite o danni derivanti dalla mancata conformità a questo obbligo di sicurezza.</p>
+                </div>
+
+                <div class="terms-section mb-4">
+                    <h6 class="fw-bold text-primary"><i class="fas fa-file-alt me-2"></i>4. Contenuti</h6>
+                    <p class="mb-3">I contenuti generati attraverso l'API di Gemini sono forniti a scopo informativo e potrebbero non sempre essere accurati. Non garantiamo la completezza, affidabilità o accuratezza di tali contenuti. Ti invitiamo a verificare sempre le informazioni importanti prima di prendere decisioni di viaggio.</p>
+                </div>
+
+                <div class="terms-section mb-4">
+                    <h6 class="fw-bold text-primary"><i class="fas fa-exclamation-triangle me-2"></i>5. Limitazione di Responsabilità</h6>
+                    <p class="mb-3">TravelGpt non è responsabile per eventuali danni diretti, indiretti, incidentali, consequenziali o punitivi derivanti dall'utilizzo o dall'impossibilità di utilizzare i nostri servizi, anche se siamo stati informati della possibilità di tali danni.</p>
+                </div>
+                
+                <div class="terms-section mb-0">
+                    <h6 class="fw-bold text-primary"><i class="fas fa-gavel me-2"></i>6. Modifiche ai Termini</h6>
+                    <p class="mb-0">Ci riserviamo il diritto di modificare questi termini in qualsiasi momento. Le modifiche entreranno in vigore immediatamente dopo la pubblicazione sul sito. L'utilizzo continuato del servizio dopo tali modifiche costituirà il tuo consenso ai nuovi termini.</p>
+                </div>
+            </div>
+            <div class="modal-footer border-top-0">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Chiudi</button>
+                <button type="button" class="btn btn-primary px-4" data-bs-dismiss="modal" id="acceptTermsBtn">
+                    <i class="fas fa-check me-2"></i>Accetto
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+    <style>
+        .register-container {
+            min-height: calc(100vh - 72px);
+            display: flex;
+            align-items: center;
+            background: linear-gradient(135deg, #f6f9fc, #edf2f7);
+        }
+        
+        .benefits-column {
+            overflow: hidden;
+        }
+        
+        .benefits-image {
+            background-image: url('https://images.unsplash.com/photo-1488085061387-422e29b40080?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1931&q=80');
+            background-size: cover;
+            background-position: center;
+            height: 100%;
+            transform: scale(1.1);
+            transition: transform 15s ease;
+        }
+        
+        .register-container:hover .benefits-image {
+            transform: scale(1);
+        }
+        
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(39, 84, 187, 0.9), rgba(0, 108, 224, 0.7));
+            z-index: 1;
+        }
+        
+        .benefits-content {
+            position: relative;
+            z-index: 2;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .benefit-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            font-size: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .benefit-item:hover .benefit-icon {
+            background-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-3px) scale(1.05);
+        }
+        
+        .floating-element {
+            position: absolute;
+            border-radius: 20px;
+            background-color: rgba(255, 255, 255, 0.1);
+            z-index: 1;
+        }
+        
+        .floating-element-1 {
+            width: 100px;
+            height: 100px;
+            top: 15%;
+            right: 10%;
+            animation: float 8s ease-in-out infinite;
+        }
+        
+        .floating-element-2 {
+            width: 150px;
+            height: 150px;
+            bottom: 15%;
+            left: 10%;
+            animation: float 10s ease-in-out infinite reverse;
+        }
+        
+        @@keyframes float {
+            0% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+            100% { transform: translateY(0) rotate(0deg); }
+        }
+        
+        .text-gradient {
+            background: linear-gradient(135deg, #2754bb, #006ce0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .rounded-4 {
+            border-radius: 1.2rem!important;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #2754bb, #006ce0);
+            border: none;
+            box-shadow: 0 5px 15px rgba(39, 84, 187, 0.3);
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #1c4aad, #0062cc);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(39, 84, 187, 0.4);
+        }
+        
+        .btn-primary:active {
+            transform: translateY(0);
+            box-shadow: 0 4px 10px rgba(39, 84, 187, 0.3);
+        }
+        
+        .btn-primary::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transform: translateX(-100%);
+        }
+        
+        .btn-primary:hover::after {
+            animation: btn-shine 1.5s ease-out infinite;
+        }
+        
+        @@keyframes btn-shine {
+            0% {
+                transform: translateX(-100%);
+            }
+            100% {
+                transform: translateX(100%);
+            }
+        }
+        
+        .form-control {
+            border-radius: 0.75rem;
+            padding: 0.75rem 1rem;
+            transition: all 0.2s;
+            border: 1px solid #e0e5ec;
+        }
+        
+        .form-control:focus {
+            border-color: #2754bb;
+            box-shadow: 0 0 0 0.25rem rgba(39, 84, 187, 0.15);
+            background-color: #fafbff;
+        }
+        
+        .input-group-text {
+            border-radius: 0.75rem 0 0 0.75rem;
+            background-color: #f8faff;
+            border: 1px solid #e0e5ec;
+            border-right: none;
+            transition: all 0.2s;
+        }
+        
+        .form-control:focus + .input-group-text,
+        .form-control:focus ~ .input-group-text {
+            border-color: #2754bb;
+            background-color: #f8faff;
+        }
+        
+        .password-toggle {
+            border-radius: 0 0.75rem 0.75rem 0;
+            background-color: #f8faff;
+            border: 1px solid #e0e5ec;
+            border-left: none;
+            color: #6c757d;
+            transition: all 0.2s;
+        }
+        
+        .password-toggle:hover {
+            background-color: #f0f4ff;
+            color: #2754bb;
+        }
+        
+        .form-check-input:checked {
+            background-color: #2754bb;
+            border-color: #2754bb;
+        }
+        
+        /* Password strength bar */
+        .progress-bar {
+            transition: width 0.3s ease;
+        }
+        
+        .password-strength-weak .progress-bar {
+            width: 33%;
+            background-color: #dc3545;
+        }
+        
+        .password-strength-medium .progress-bar {
+            width: 66%;
+            background-color: #ffc107;
+        }
+        
+        .password-strength-strong .progress-bar {
+            width: 100%;
+            background-color: #198754;
+        }
+        
+        /* Loading spinner animation */
+        @@keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .btn-loading {
+            animation: pulse 1.5s infinite;
+            pointer-events: none;
+        }
+        
+        .benefit-item {
+            transition: all 0.3s ease;
+            padding: 1rem;
+            border-radius: 12px;
+        }
+        
+        .benefit-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: translateX(5px);
+        }
+        
+        .modal-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            background-color: rgba(39, 84, 187, 0.1);
+            border-radius: 10px;
+            font-size: 20px;
+        }
+        
+        /* Improved responsiveness */
+        @@media (max-width: 991.98px) {
+            .register-container {
+                padding: 1rem;
+            }
+        }
+        
+        a {
+            color: #2754bb;
+            transition: all 0.2s;
+        }
+        
+        a:hover {
+            color: #006ce0;
+            text-decoration: none;
+        }
+        
+        .shadow-lg {
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08) !important;
+        }
+    </style>
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Password toggle visibility
+            const togglePassword = document.getElementById('togglePassword');
+            const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
+            const passwordInput = document.querySelector('input[name="Input.Password"]');
+            const confirmPasswordInput = document.querySelector('input[name="Input.ConfirmPassword"]');
+            
+            function setupPasswordToggle(toggleBtn, passwordField) {
+                if (toggleBtn && passwordField) {
+                    toggleBtn.addEventListener('click', function() {
+                        const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+                        passwordField.setAttribute('type', type);
+                        
+                        // Toggle icon
+                        const icon = this.querySelector('i');
+                        icon.classList.toggle('fa-eye');
+                        icon.classList.toggle('fa-eye-slash');
+                    });
+                }
+            }
+            
+            setupPasswordToggle(togglePassword, passwordInput);
+            setupPasswordToggle(toggleConfirmPassword, confirmPasswordInput);
+            
+            // Password strength meter
+            const passwordStrength = document.getElementById('passwordStrength');
+            
+            if (passwordInput && passwordStrength) {
+                passwordInput.addEventListener('input', function() {
+                    const password = this.value;
+                    
+                    if (password.length > 0) {
+                        passwordStrength.classList.remove('d-none');
+                        
+                        // Calculate password strength
+                        let strength = 0;
+                        
+                        // Length
+                        if (password.length >= 8) strength += 1;
+                        
+                        // Contains lowercase
+                        if (/[a-z]/.test(password)) strength += 1;
+                        
+                        // Contains uppercase
+                        if (/[A-Z]/.test(password)) strength += 1;
+                        
+                        // Contains number
+                        if (/[0-9]/.test(password)) strength += 1;
+                        
+                        // Contains special character
+                        if (/[^a-zA-Z0-9]/.test(password)) strength += 1;
+                        
+                        // Update UI based on strength
+                        passwordStrength.className = 'password-strength mt-2';
+                        
+                        if (strength <= 2) {
+                            passwordStrength.classList.add('password-strength-weak');
+                        } else if (strength <= 4) {
+                            passwordStrength.classList.add('password-strength-medium');
+                        } else {
+                            passwordStrength.classList.add('password-strength-strong');
+                        }
+                    } else {
+                        passwordStrength.classList.add('d-none');
+                    }
+                });
+            }
+            
+            // Form submission loading state
+            const registerForm = document.getElementById('registerForm');
+            const registerSpinner = document.getElementById('registerSpinner');
+            const registerButton = document.getElementById('registerSubmit');
+            
+            if (registerForm && registerSpinner && registerButton) {
+                registerForm.addEventListener('submit', function() {
+                    // Only show loading state if form is valid
+                    if (registerForm.checkValidity()) {
+                        registerSpinner.classList.remove('d-none');
+                        registerButton.classList.add('btn-loading');
+                        
+                        // Disable submit button to prevent double submission
+                        setTimeout(() => {
+                            registerButton.disabled = true;
+                        }, 0);
+                    }
+                });
+            }
+            
+            // Terms and conditions acceptance
+            const acceptTermsBtn = document.getElementById('acceptTermsBtn');
+            const acceptTermsCheckbox = document.getElementById('Input_AcceptTerms');
+            
+            if (acceptTermsBtn && acceptTermsCheckbox) {
+                acceptTermsBtn.addEventListener('click', function() {
+                    acceptTermsCheckbox.checked = true;
+                });
+            }
+            
+            // Add subtle parallax effect to background
+            const registerContainer = document.querySelector('.register-container');
+            if (registerContainer) {
+                registerContainer.addEventListener('mousemove', function(e) {
+                    const benefitsImage = document.querySelector('.benefits-image');
+                    if (benefitsImage) {
+                        const x = (e.clientX / window.innerWidth) * 10;
+                        const y = (e.clientY / window.innerHeight) * 10;
+                        benefitsImage.style.transform = `scale(1.1) translate(${x}px, ${y}px)`;
+                    }
+                });
+            }
+            
+            // Focus first input field
+            const firstNameInput = document.getElementById('Input_FirstName');
+            if (firstNameInput) {
+                firstNameInput.focus();
+            }
+            
+            // Enhance benefit items with hover effects
+            const benefitItems = document.querySelectorAll('.benefit-item');
+            benefitItems.forEach(item => {
+                item.addEventListener('mouseenter', function() {
+                    this.querySelector('.benefit-icon').classList.add('pulse');
+                });
+                
+                item.addEventListener('mouseleave', function() {
+                    this.querySelector('.benefit-icon').classList.remove('pulse');
+                });
+            });
+            
+            // Add pulse animation for benefit icons
+            document.head.insertAdjacentHTML('beforeend', `
+                <style>
+                    @@keyframes pulse {
+                        0% { transform: scale(1); }
+                        50% { transform: scale(1.1); }
+                        100% { transform: scale(1); }
+                    }
+                    .pulse {
+                        animation: pulse 1s infinite;
+                    }
+                </style>
+            `);
+        });
+    </script>
+}

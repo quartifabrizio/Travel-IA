@@ -1,0 +1,117 @@
+﻿@page
+@model TravelGpt.Pages.Itinerary.CreateModel
+@{
+    ViewData["Title"] = "Crea Itinerario";
+}
+
+<div class="container py-4">
+    <h1 class="mb-4">Crea Nuovo Itinerario</h1>
+
+    <div class="card shadow-sm border-0 rounded-3">
+        <div class="card-body">
+            <form method="post">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Inserisci le informazioni di base per il tuo itinerario. Potrai aggiungere tappe e dettagli nella fase successiva.
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <label asp-for="TripPlan.Title" class="form-label">Titolo dell'itinerario</label>
+                        <input asp-for="TripPlan.Title" class="form-control" placeholder="Es. Weekend a Parigi" required />
+                        <span asp-validation-for="TripPlan.Title" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <label asp-for="TripPlan.Description" class="form-label">Descrizione</label>
+                        <textarea asp-for="TripPlan.Description" class="form-control" rows="3" placeholder="Aggiungi una breve descrizione del tuo viaggio..."></textarea>
+                        <span asp-validation-for="TripPlan.Description" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="TripPlan.StartDate" class="form-label">Data inizio</label>
+                        <input type="date" asp-for="TripPlan.StartDate" class="form-control" required />
+                        <span asp-validation-for="TripPlan.StartDate" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="TripPlan.EndDate" class="form-label">Data fine</label>
+                        <input type="date" asp-for="TripPlan.EndDate" class="form-control" required />
+                        <span asp-validation-for="TripPlan.EndDate" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="mb-3 form-check">
+                    <input asp-for="TripPlan.IsPublic" class="form-check-input" type="checkbox" />
+                    <label asp-for="TripPlan.IsPublic" class="form-check-label">Rendi itinerario pubblico</label>
+                    <div class="form-text">Gli itinerari pubblici potranno essere visualizzati da tutti gli utenti.</div>
+                </div>
+
+                <hr class="my-4">
+
+                <h5 class="mb-3">Prima tappa</h5>
+                <p class="text-muted mb-3">Inserisci i dati della prima tappa del tuo itinerario. Potrai aggiungere altre tappe successivamente.</p>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="FirstStop.CityName" class="form-label">Città</label>
+                        <input asp-for="FirstStop.CityName" class="form-control" placeholder="Es. Roma" required />
+                        <span asp-validation-for="FirstStop.CityName" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="FirstStop.Country" class="form-label">Paese</label>
+                        <input asp-for="FirstStop.Country" class="form-control" placeholder="Es. Italia" required />
+                        <span asp-validation-for="FirstStop.Country" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-8">
+                        <label asp-for="FirstStop.Description" class="form-label">Descrizione breve</label>
+                        <input asp-for="FirstStop.Description" class="form-control" placeholder="Es. Visita alla capitale italiana" />
+                        <span asp-validation-for="FirstStop.Description" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="FirstStop.Days" class="form-label">Giorni di permanenza</label>
+                        <input type="number" asp-for="FirstStop.Days" class="form-control" min="1" value="1" required />
+                        <span asp-validation-for="FirstStop.Days" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="text-end mt-4">
+                    <a asp-page="../Dashboard" class="btn btn-outline-secondary me-2">Annulla</a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i>Crea itinerario
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Imposta date di default
+            if (!$('#TripPlan_StartDate').val()) {
+                const today = new Date();
+                const nextWeek = new Date();
+                nextWeek.setDate(today.getDate() + 7);
+
+                $('#TripPlan_StartDate').val(formatDate(nextWeek));
+                $('#TripPlan_EndDate').val(formatDate(new Date(nextWeek.getTime() + (3 * 24 * 60 * 60 * 1000)))); // +3 giorni
+            }
+
+            // Funzione per formattare la data in YYYY-MM-DD
+            function formatDate(date) {
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            }
+        });
+    </script>
+}

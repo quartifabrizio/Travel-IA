@@ -1,0 +1,588 @@
+﻿@page
+@model TravelGpt.Pages.Itinerary.ListModel
+@{
+    ViewData["Title"] = "I Miei Itinerari";
+}
+
+<style>
+    /* Variabili di stile */
+    :root {
+        --primary-color: #0e76bc;
+        --primary-light: rgba(14, 118, 188, 0.1);
+        --primary-hover: #0a5a91;
+        --primary-gradient: linear-gradient(135deg, #0e76bc, #3498db);
+        --secondary-color: #6c757d;
+        --success-color: #28a745;
+        --danger-color: #dc3545;
+        --warning-color: #ffc107;
+        --light-color: #f8f9fa;
+        --dark-color: #343a40;
+        --border-radius: 0.8rem;
+        --card-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+        --transition: all 0.3s ease;
+    }
+    
+    /* Stili della pagina */
+    .itinerary-container {
+        padding: 2.5rem 0;
+    }
+    
+    .page-title-wrapper {
+        margin-bottom: 2rem;
+        position: relative;
+    }
+    
+    .page-title {
+        font-weight: 700;
+        color: var(--dark-color);
+        position: relative;
+        display: inline-block;
+        margin-bottom: 0;
+    }
+    
+    .page-title::after {
+        content: '';
+        position: absolute;
+        bottom: -8px;
+        left: 0;
+        width: 60px;
+        height: 4px;
+        background: var(--primary-gradient);
+        border-radius: 2px;
+    }
+    
+    /* Bottone nuovo itinerario */
+    .btn-new-trip {
+        background: var(--primary-gradient);
+        border: none;
+        color: white;
+        padding: 0.6rem 1.5rem;
+        border-radius: 50rem;
+        font-weight: 500;
+        transition: var(--transition);
+        box-shadow: 0 4px 10px rgba(14, 118, 188, 0.2);
+        display: inline-flex;
+        align-items: center;
+    }
+    
+    .btn-new-trip:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(14, 118, 188, 0.3);
+        color: white;
+    }
+    
+    .btn-new-trip i {
+        margin-right: 0.5rem;
+        font-size: 0.9rem;
+    }
+    
+    /* Stato vuoto */
+    .empty-state {
+        background: #ffffff;
+        border-radius: var(--border-radius);
+        box-shadow: var(--card-shadow);
+        padding: 3rem 2rem;
+        text-align: center;
+        margin: 2rem 0;
+        border: 1px dashed #dee2e6;
+    }
+    
+    .empty-state-icon {
+        font-size: 5rem;
+        color: #cfe3f7;
+        margin-bottom: 1.5rem;
+        display: block;
+    }
+    
+    .empty-state-title {
+        font-weight: 600;
+        color: var(--dark-color);
+        margin-bottom: 0.75rem;
+    }
+    
+    .empty-state-text {
+        color: var(--secondary-color);
+        font-size: 1.1rem;
+        margin-bottom: 2rem;
+    }
+    
+    .btn-empty-cta {
+        padding: 0.75rem 2rem;
+        font-size: 1.1rem;
+        border-radius: 50rem;
+    }
+    
+    /* Card degli itinerari */
+    .itinerary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 1.75rem;
+    }
+    
+    .itinerary-card {
+        border: none;
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        box-shadow: var(--card-shadow);
+        transition: var(--transition);
+        position: relative;
+        height: 100%;
+        background: white;
+    }
+    
+    .itinerary-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+    }
+    
+    .itinerary-card-image {
+        height: 220px;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .itinerary-card-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.8s ease;
+    }
+    
+    .itinerary-card:hover .itinerary-card-image img {
+        transform: scale(1.05);
+    }
+    
+    .itinerary-card-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        padding: 2.5rem 1.5rem 1.25rem;
+        background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 60%, rgba(0,0,0,0) 100%);
+    }
+    
+    .itinerary-card-title {
+        color: white;
+        font-weight: 600;
+        margin: 0;
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        line-height: 1.4;
+    }
+    
+    .itinerary-card-body {
+        padding: 1.5rem;
+    }
+    
+    .itinerary-dates {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        color: var(--secondary-color);
+        font-size: 0.875rem;
+    }
+    
+    .itinerary-dates-text {
+        display: flex;
+        align-items: center;
+    }
+    
+    .itinerary-dates-text i {
+        color: var(--primary-color);
+        margin-right: 0.5rem;
+    }
+    
+    .days-badge {
+        background: var(--primary-light);
+        color: var(--primary-color);
+        font-weight: 600;
+        padding: 0.35rem 0.75rem;
+        border-radius: 50rem;
+        font-size: 0.75rem;
+    }
+    
+    .itinerary-description {
+        color: var(--secondary-color);
+        font-size: 0.9rem;
+        margin-bottom: 1.25rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        line-height: 1.5;
+        height: 2.7rem;
+    }
+    
+    .destinations-section {
+        margin-bottom: 1.5rem;
+    }
+    
+    .destinations-title {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--secondary-color);
+        margin-bottom: 0.75rem;
+        font-weight: 600;
+    }
+    
+    .destination-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    
+    .destination-tag {
+        background-color: #f0f4f8;
+        color: #506677;
+        padding: 0.35rem 0.75rem;
+        border-radius: 50rem;
+        font-size: 0.75rem;
+        font-weight: 500;
+        transition: var(--transition);
+    }
+    
+    .destination-tag:hover {
+        background-color: #e1ebf5;
+        color: var(--primary-color);
+    }
+    
+    .more-tag {
+        background-color: #e1ebf5;
+        color: var(--primary-color);
+        font-weight: 600;
+    }
+    
+    .itinerary-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-top: 1px solid rgba(0, 0, 0, 0.05);
+        padding-top: 1.25rem;
+    }
+    
+    .btn-details {
+        padding: 0.4rem 1rem;
+        border-radius: 50rem;
+        font-weight: 500;
+        font-size: 0.85rem;
+        border: none;
+        background-color: var(--primary-light);
+        color: var(--primary-color);
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+    }
+    
+    .btn-details:hover {
+        background-color: var(--primary-color);
+        color: white;
+    }
+    
+    .btn-details i {
+        margin-right: 0.4rem;
+    }
+    
+    .actions-group {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .btn-action {
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        transition: var(--transition);
+        color: #506677;
+        background-color: transparent;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+    }
+    
+    .btn-action:hover {
+        transform: translateY(-2px);
+    }
+    
+    .btn-edit:hover {
+        background-color: #f0f4f8;
+        color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+    
+    .btn-expenses:hover {
+        background-color: #f0f9f0;
+        color: var(--success-color);
+        border-color: var(--success-color);
+    }
+    
+    .btn-delete:hover {
+        background-color: #fcf0f0;
+        color: var(--danger-color);
+        border-color: var(--danger-color);
+    }
+    
+    /* Modal */
+    .delete-modal .modal-content {
+        border-radius: var(--border-radius);
+        border: none;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        overflow: hidden;
+    }
+    
+    .delete-modal .modal-header {
+        background-color: #fcf0f0;
+        border-bottom: none;
+        padding: 1.5rem;
+    }
+    
+    .delete-modal .modal-title {
+        color: var(--danger-color);
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+    }
+    
+    .delete-modal .modal-title i {
+        margin-right: 0.75rem;
+    }
+    
+    .delete-modal .modal-body {
+        padding: 1.75rem 1.5rem;
+    }
+    
+    .delete-modal .trip-name {
+        font-weight: 600;
+    }
+    
+    .delete-modal .modal-footer {
+        border-top: none;
+        padding: 1rem 1.5rem 1.5rem;
+        justify-content: flex-end;
+    }
+    
+    .btn-cancel {
+        background-color: #f0f4f8;
+        color: var(--secondary-color);
+        border: none;
+        padding: 0.5rem 1.25rem;
+        border-radius: 50rem;
+        font-weight: 500;
+        transition: var(--transition);
+    }
+    
+    .btn-cancel:hover {
+        background-color: #e1e6eb;
+    }
+    
+    .btn-confirm-delete {
+        background-color: var(--danger-color);
+        color: white;
+        border: none;
+        padding: 0.5rem 1.25rem;
+        border-radius: 50rem;
+        font-weight: 500;
+        transition: var(--transition);
+    }
+    
+    .btn-confirm-delete:hover {
+        background-color: #c82333;
+        box-shadow: 0 4px 10px rgba(220, 53, 69, 0.3);
+    }
+    
+    /* Animazioni */
+    @@keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .fade-in-up {
+        animation: fadeInUp 0.5s ease forwards;
+    }
+    
+    /* Media queries */
+    @@media (max-width: 767px) {
+        .itinerary-container {
+            padding: 1.5rem 0;
+        }
+        
+        .page-title-wrapper {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .itinerary-grid {
+            grid-template-columns: 1fr;
+            gap: 1.25rem;
+        }
+    }
+</style>
+
+<div class="container itinerary-container">
+    <div class="d-flex justify-content-between align-items-center page-title-wrapper">
+        <h1 class="page-title">I Miei Itinerari</h1>
+        <a asp-page="/Dashboard" class="btn-new-trip">
+            <i class="fas fa-plus"></i>Nuovo Itinerario
+        </a>
+    </div>
+
+    @if (!Model.TripPlans.Any())
+    {
+        <div class="empty-state fade-in-up">
+            <i class="fas fa-route empty-state-icon"></i>
+            <h3 class="empty-state-title">Nessun itinerario trovato</h3>
+            <p class="empty-state-text">Inizia a creare il tuo primo itinerario di viaggio</p>
+            <a asp-page="/Dashboard" class="btn btn-primary btn-lg btn-empty-cta">
+                <i class="fas fa-map-marked-alt me-2"></i>Pianifica un Nuovo Viaggio
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="itinerary-grid">
+            @foreach (var trip in Model.TripPlans.Select((value, index) => new { Value = value, Index = index }))
+            {
+                <div class="itinerary-card fade-in-up" style="animation-delay: @(trip.Index * 0.1)s">
+                    <div class="itinerary-card-image">
+                        @if (Model.TripImages.TryGetValue(trip.Value.Id, out var imgUrl))
+                        {
+                            <img src="@imgUrl" alt="@trip.Value.Title">
+                        }
+                        else
+                        {
+                            <img src="/images/travel-placeholder.jpg" alt="@trip.Value.Title">
+                        }
+                        <div class="itinerary-card-overlay">
+                            <h5 class="itinerary-card-title">@trip.Value.Title</h5>
+                        </div>
+                    </div>
+                    <div class="itinerary-card-body">
+                        <div class="itinerary-dates">
+                            <div class="itinerary-dates-text">
+                                <i class="far fa-calendar-alt"></i>
+                                <span>@trip.Value.StartDate.ToString("dd/MM/yyyy") - @trip.Value.EndDate.ToString("dd/MM/yyyy")</span>
+                            </div>
+                            <span class="days-badge">@((trip.Value.EndDate - trip.Value.StartDate).Days + 1) giorni</span>
+                        </div>
+
+                        @if (!string.IsNullOrEmpty(trip.Value.Description))
+                        {
+                            <p class="itinerary-description">@trip.Value.Description</p>
+                        }
+                        else
+                        {
+                            <p class="itinerary-description text-muted">Nessuna descrizione disponibile</p>
+                        }
+
+                        @if (Model.TripCities.TryGetValue(trip.Value.Id, out var cities) && cities.Any())
+                        {
+                            <div class="destinations-section">
+                                <h6 class="destinations-title">Destinazioni</h6>
+                                <div class="destination-tags">
+                                    @foreach (var city in cities.Take(3))
+                                    {
+                                        <span class="destination-tag">@city</span>
+                                    }
+                                    @if (cities.Count > 3)
+                                    {
+                                        <span class="destination-tag more-tag">+@(cities.Count - 3)</span>
+                                    }
+                                </div>
+                            </div>
+                        }
+
+                        <div class="itinerary-actions">
+                            <a asp-page="./Details" asp-route-id="@trip.Value.Id" class="btn-details">
+                                <i class="fas fa-info-circle"></i> Dettagli
+                            </a>
+                            <div class="actions-group">
+                                <a asp-page="./Edit" asp-route-id="@trip.Value.Id" class="btn-action btn-edit" title="Modifica itinerario">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a asp-page="/Expenses/Manage" asp-route-tripId="@trip.Value.Id" class="btn-action btn-expenses" title="Gestisci spese">
+                                    <i class="fas fa-euro-sign"></i>
+                                </a>
+                                <button type="button" class="btn-action btn-delete delete-trip-btn" title="Elimina itinerario"
+                                    data-bs-toggle="modal" data-bs-target="#deleteModal"
+                                    data-trip-id="@trip.Value.Id" data-trip-title="@trip.Value.Title">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<!-- Modal di conferma eliminazione -->
+<div class="modal fade delete-modal" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-exclamation-triangle"></i> Conferma eliminazione</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Sei sicuro di voler eliminare l'itinerario <span id="tripTitleToDelete" class="trip-name"></span>?</p>
+                <p class="text-danger"><i class="fas fa-info-circle me-1"></i> Questa azione non può essere annullata e rimuoverà tutti i dati associati.</p>
+            </div>
+            <div class="modal-footer">
+                <form method="post" id="deleteTripForm">
+                    <input type="hidden" id="tripIdToDelete" name="id" />
+                    <button type="button" class="btn-cancel" data-bs-dismiss="modal">Annulla</button>
+                    <button type="submit" class="btn-confirm-delete">
+                        <i class="fas fa-trash-alt me-1"></i> Elimina
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Gestione del modal di eliminazione
+            $('.delete-trip-btn').click(function () {
+                const tripId = $(this).data('trip-id');
+                const tripTitle = $(this).data('trip-title');
+
+                $('#tripIdToDelete').val(tripId);
+                $('#tripTitleToDelete').text(tripTitle);
+                $('#deleteTripForm').attr('action', `/Itinerary/List?handler=Delete&id=${tripId}`);
+            });
+            
+            // Animazione all'apertura del modal
+            $('#deleteModal').on('show.bs.modal', function () {
+                $(this).find('.modal-dialog')
+                    .css({transform: 'scale(0.8)', opacity: 0})
+                    .animate({transform: 'scale(1)', opacity: 1}, 300);
+            });
+            
+            // Gestione delle immagini non caricate
+            $('img').on('error', function() {
+                $(this).attr('src', '/images/travel-placeholder.jpg');
+            });
+            
+            // Tooltip per i pulsanti di azione
+            $('[title]').tooltip();
+        });
+    </script>
+}
